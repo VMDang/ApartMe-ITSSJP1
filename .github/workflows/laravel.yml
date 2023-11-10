@@ -1,0 +1,65 @@
+name: Laravel
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  laravel-tests:
+
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: dbtest
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    env:
+      APP_ENV: env
+    steps:
+    - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+      with:
+        php-version: '8.1'
+    - uses: actions/checkout@v3
+    - name: Copy .env
+      run: cp .env.example .env
+    - name: Install Dependencies
+      run: composer install
+    - name: Generate key
+      run: php artisan key:generate
+    - name: Run migration
+      run: php artisan migrate --force
+    - name: Run seeder
+      run: php artisan db:seed
+    - name: localization
+      run: php artisan lang:publish
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+    - name: Create Database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      run: |
+        php artisan test --testsuite=Unit
+    - name: Check coding convention by PHP_CodeSniffer
+      run: |
+        composer global require "squizlabs/php_codesniffer=*"
+        composer install
+        ~/.composer/vendor/bin/phpcs --ignore=vendor,bootstrap,storage,database,coverage,public,resources,node_modules,*.config.js,tests --standard=PSR2,PSR1 ./
+        ~/.composer/vendor/bin/phpcs --standard=PSR2,PSR1 lang/
+    - name: Check npm node
+      run: |
+        npm install
+        npm run build
+    - name: clear-services
+      run: |
+        php artisan config:cache
+        php artisan config:clear
+        php artisan cache:clear
