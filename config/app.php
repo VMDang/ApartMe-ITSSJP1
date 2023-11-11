@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Ho_Chi_Minh',
 
     /*
     |--------------------------------------------------------------------------
@@ -185,4 +185,44 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+    'user_status' => [
+        0 => 'Lock',
+        1 => 'Active',
+    ],
+
+    'document_status' => [
+        0 => 'Lock',
+        1 => 'Active',
+    ],
+
+    'registration_approve_status' => [
+        0 => 'Prepare',
+        1 => 'Accept',
+        2 => 'Denied',
+    ],
+
+    'role_status' => [
+        0 => 'Lock',
+        1 => 'Active',
+    ],
+
+    'room_status' => [
+        0 => 'Lock',
+        1 => 'Active',
+    ],
+
+    'invoice_status' => [
+        0 => 'Not Done',
+        1 => 'Done',
+    ],
+
+    'payment_status' => [
+        0 => 'Unpaid',
+        1 => 'Paid',
+    ],
+
+    'request_user_is_owner' => [
+        0 => 'False',
+        1 => 'True',
+    ],
 ];
