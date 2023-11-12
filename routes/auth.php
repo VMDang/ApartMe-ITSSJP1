@@ -56,4 +56,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
+
+    Route::get('select/apartment', [AuthenticatedSessionController::class, 'selectApartmentShow'])
+        ->name('selectApartment.show');
+
+    Route::get('select/apartment/{id}', [AuthenticatedSessionController::class, 'selectApartmentStore'])
+        ->name('selectApartment.store');
 });

@@ -22,5 +22,10 @@ class CreateAdminAccount extends Seeder
             'password' => Hash::make(env('PASSWORD_ADMIN')),
             'status' => array_search("Active", config('app.user_status')),
         ]);
+
+        DB::table('room_user')->insert([
+            'user_id' => DB::table('users')->select('id')->where('email', '=','admin@gmail.com')->first()->id,
+            'role_id' => DB::table('roles')->select('id')->where('name', '=', 'ADMIN')->first()->id,
+        ]);
     }
 }
