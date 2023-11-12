@@ -26,7 +26,11 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $apartment = \App\Models\Apartment::query()
+        ->where('id', '=', \Illuminate\Support\Facades\Session::get('selectedApartmentID'))
+        ->first();
+
+    return Inertia::render('Dashboard', [ 'apartment' => $apartment]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
