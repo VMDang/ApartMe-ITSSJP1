@@ -84,8 +84,45 @@ class AuthenticatedSessionController extends Controller
 
     public function selectApartmentShow(): Response
     {
-        $owner = Apartment::query()->where('owner_email', '=', Auth::user()->email)->first();
+        return Inertia::render('SelectApartment', [
+            'owner' => $this->getApartmentOwner(),
+            'tenants' => $this->getApartmentsTenant(),
+        ]);
+    }
 
+    public function selectApartmentStore(Apartment $apartment): RedirectResponse
+    {
+        $apartmentOwner = $this->getApartmentOwner();
+        $apartmentsTenant = $this->getApartmentsTenant();
+
+        if (isset($apartmentOwner) && $apartmentOwner->id == $apartment->id) {
+            // User is logging select a apartment role owner
+            Session::put('selectedApartmentID', $apartment->id);
+
+            return redirect()->route('dashboard');      // Go to Owner dashboard
+        }
+
+        if (!empty($apartmentsTenant)) {
+            foreach ($apartmentsTenant as $value) {
+                if ($value->id == $apartment->id) {
+                    // User is logging select a apartment role tenant
+                    Session::put('selectedApartmentID', $apartment->id);
+
+                    return redirect()->route('dashboard');      // Go to Tenant dashboard
+                }
+            }
+        }
+
+        return redirect()->route('selectApartment.show');
+    }
+
+    private function getApartmentOwner(): Apartment|null
+    {
+        return Apartment::query()->where('owner_email', '=', Auth::user()->email)->first();
+    }
+
+    private function getApartmentsTenant(): array|null
+    {
         $roomsID = DB::table('room_user')->where([
             ['user_id', '=', Auth::id()],
             ['role_id', '=', Role::query()->select('id')->where('name', '=', 'TENANT')->first()->id],
@@ -96,27 +133,6 @@ class AuthenticatedSessionController extends Controller
             $tenants[] = Room::query()->find($roomID->room_id)->apartment;
         }
 
-        return Inertia::render('SelectApartment', [
-            'owner' => $owner,
-            'tenants' => $tenants,
-        ]);
-    }
-
-    public function selectApartmentStore($id)
-    {
-        $checkApartmentExists = Apartment::query()->find($id)->exists();
-        if (!$checkApartmentExists) {
-            abort(404, 'Apartment not exists!');
-        }
-
-        Session::put('selectedApartmentID', $id);
-
-        $apartmentID = Apartment::query()->where('owner_email', '=', Auth::user()->email)->first()->id;
-        if ($apartmentID == $id) {
-            // User is logging select a apartment role owner
-            return redirect()->route('dashboard');      // Go to Owner dashboard
-        } else {
-            return redirect()->route('dashboard');      // Go to Tenant dashboard
-        }
+        return $tenants;
     }
 }

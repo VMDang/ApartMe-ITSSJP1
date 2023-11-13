@@ -60,6 +60,6 @@ Route::middleware('auth')->group(function () {
     Route::get('select/apartment', [AuthenticatedSessionController::class, 'selectApartmentShow'])
         ->name('selectApartment.show');
 
-    Route::get('select/apartment/{id}', [AuthenticatedSessionController::class, 'selectApartmentStore'])
+    Route::get('select/apartment/{apartment}', [AuthenticatedSessionController::class, 'selectApartmentStore'])
         ->name('selectApartment.store');
 });
