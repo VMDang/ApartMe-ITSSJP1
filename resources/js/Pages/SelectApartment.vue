@@ -30,7 +30,7 @@ const redirectFollowApartmentSelected = (apartmentID) => {
         </template>
 
 
-        <div class="py-8" >
+        <div v-if="owner !== null" class="py-8" >
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="sm:p-4 bg-white shadow sm:rounded-lg">
                     <header>
@@ -51,7 +51,7 @@ const redirectFollowApartmentSelected = (apartmentID) => {
             </div>
         </div>
 
-        <div class="py-8">
+        <div v-if="tenants !== null && tenants.length > 0" class="py-8">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="sm:p-4 bg-white shadow sm:rounded-lg">
                     <header>
