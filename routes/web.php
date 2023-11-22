@@ -47,4 +47,8 @@ Route::prefix('/tenant-accounts')->group(function () {
     Route::delete('/delete/{id}', [TenantAccountController::class, 'destroy'])->name('tenant-accounts.destroy');
 });
 
+Route::prefix('/apartments')->group(function () {
+    Route::get('/create', [ApartmentController::class, 'create'])->name('apartments.create');
+});
+
 require __DIR__.'/auth.php';
