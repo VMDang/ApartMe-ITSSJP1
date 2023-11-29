@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\ApartmentController;
+use App\Http\Controllers\Message\RequestMessageController;
 use App\Http\Controllers\Owner\TenantAccountController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -40,9 +42,22 @@ Route::middleware('auth')->group(function () {
 //    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::prefix('/tenant-accounts')->group(function(){
-    Route::get('/', [TenantAccountController::class, 'viewList'])->name('tenant-accounts.view');
-    Route::post('/web/submit-form', [TenantAccountController::class, 'create'])->name('tenant-accounts.create');
+Route::prefix('/tenant-accounts')->group(function () {
+    Route::get('/', [TenantAccountController::class, 'create'])->name('tenant-accounts.view');
+    Route::post('/web/submit-form', [TenantAccountController::class, 'store'])->name('tenant-accounts.create');
+    Route::delete('/delete/{id}', [TenantAccountController::class, 'destroy'])->name('tenant-accounts.destroy');
 });
 
+Route::prefix('/apartments')->group(function () {
+    Route::get('/create', [ApartmentController::class, 'create'])->name('apartments.create');
+});
+
+Route::prefix('/received')->group(function () {
+    Route::get('/', [RequestMessageController::class, 'received'])->name('requests.received'); 
+});
+
+Route::prefix('/send')->group(function () {
+    Route::get('/', [RequestMessageController::class, 'send'])->name('requests.send'); 
+});
 require __DIR__.'/auth.php';
+
