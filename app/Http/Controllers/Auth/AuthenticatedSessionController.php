@@ -132,6 +132,7 @@ class AuthenticatedSessionController extends Controller
         foreach ($roomsID as $roomID) {
             $tenants[] = Room::query()->find($roomID->room_id)->apartment;
         }
+        $tenants = collect($tenants)->unique('id')->values()->all();
 
         return $tenants;
     }
