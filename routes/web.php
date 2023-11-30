@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ApartmentController;
+use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\TenantAccountController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -50,5 +51,7 @@ Route::prefix('/tenant-accounts')->group(function () {
 Route::prefix('/apartments')->group(function () {
     Route::get('/create', [ApartmentController::class, 'create'])->name('apartments.create');
 });
+
+Route::resource('/rooms', RoomController::class);
 
 require __DIR__.'/auth.php';
