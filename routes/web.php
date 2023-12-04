@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ApartmentController;
 use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\TenantAccountController;
+use App\Http\Controllers\Message\RequestMessageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -53,5 +54,14 @@ Route::prefix('/apartments')->group(function () {
 });
 
 Route::resource('/rooms', RoomController::class);
+
+Route::prefix('/received')->group(function () {
+    Route::get('/', [RequestMessageController::class, 'received'])->name('requests.received'); 
+});
+
+Route::prefix('/send')->group(function () {
+    Route::get('/', [RequestMessageController::class, 'send'])->name('requests.send'); 
+});
+
 
 require __DIR__.'/auth.php';
