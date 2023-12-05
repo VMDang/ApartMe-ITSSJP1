@@ -1,219 +1,344 @@
-<script>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Inertia } from '@inertiajs/inertia';
-import { useForm, usePage } from '@inertiajs/vue3';
+<script setup>
+import {Head, usePage} from "@inertiajs/vue3";
+import {createVNode, reactive, ref} from "vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { Input } from "ant-design-vue";
 
-const form = useForm({
-    fullName: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    status: "1",
-})
+import {
+    PlusCircleOutlined,
+    DeleteOutlined,
+    EyeOutlined,
+    ExclamationCircleOutlined,
+    SearchOutlined,
+    FormOutlined,
+} from "@ant-design/icons-vue";
+import { Modal} from "ant-design-vue";
+import { Inertia } from "@inertiajs/inertia";
 
-export default {
-    props: {
-        tenants: Array,
+
+const Tenants = [
+  {
+    
+    number: "101",
+    fullname: "Van Hoan Ta",
+    phonenumber: "0981130824",
+    email: "John@gmail.com",
+
+  },
+
+];
+
+
+const state = reactive({
+    searchText: '',
+    searchedColumn: '',
+});
+const searchInput = ref();
+
+const columns = [
+    {
+        title: "Number",
+        dataIndex: "number",
+        key: "number",
+        sorter: (a, b) => a.number.length - b.number.length,
+        sortDirections: ["descend", "ascend"],
+        customFilterDropdown: true,
+        onFilter: (value, record) => record.number.toString().toLowerCase().includes(value.toLowerCase()),
     },
-    data() {
-        return {
-            selectedTenant: {},
-            form: form,
-        };
+    {
+        title: "Full name",
+        dataIndex: "fullname",
+        key: "fullname",
+        sorter: (a, b) => a.fullname.length - b.fullname.length,
+        sortDirections: ["descend", "ascend"],
     },
-    methods: {
-        viewDetails(tenant) {
-            this.selectedTenant = tenant;
-            $("#detailModal").modal("show");
-        },
-        deleteTenant(tenantId) {
-            if (confirm("Are you sure you want to delete this account?")) {
-                const url = route("tenant-accounts.destroy", { id: tenantId });
-                Inertia.delete(url);
-                window.location.reload();
-            }
-        },
-        addTenant() {
-            form.post(route("tenant-accounts.create"), {
-                onFinish: () => {
-                    form.reset('fullName', 'email', 'phone', 'password', 'confirmPassword'),
-                    $("#registrationModal").modal("hide")
-                }
-            });
-        },
+    {
+        title: "Email",
+        dataIndex: "email",
+        key: "email",
+        sorter: (a, b) => a.email - b.email,
     },
-    components: { AuthenticatedLayout }
+    {
+        title: "Action",
+        key: "action",
+        align: "center",
+    },
+];
+
+const value = ref("");
+
+const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    state.searchText = selectedKeys[0];
+    state.searchedColumn = dataIndex;
+};
+const handleReset = clearFilters => {
+    clearFilters({
+        confirm: true,
+    });
+    state.searchText = '';
+};
+
+const showDeleteConfirm = (record) => {
+    Modal.confirm({
+        title: "Are you sure you want to delete?",
+        icon: createVNode(ExclamationCircleOutlined),
+        content: createVNode(
+            "div",
+            { style: "color:red;" },
+            `Number: ${record.number}`
+        ),
+        okText: "Yes",
+        okType: "danger",
+        cancelText: "No",
+
+        onCancel() {},
+    });
+};
+
+const showDetailsModal = (record) => {
+  console.log("showDetailsModal called with record:", record);
+
+  Modal.info({
+    title: "Details of the tenant's account",
+    icon: createVNode(EyeOutlined),
+    content: createVNode(
+      "div",
+      null,
+      [
+        createVNode("table", { class: "custom-table" }, [
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Full Name"),
+            createVNode("td", { class: "data-column" }, record.fullname),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Phone Number"),
+            createVNode("td", { class: "data-column" }, record.phonenumber),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Email"),
+            createVNode("td", { class: "data-column" }, record.email),
+          ]),
+        ])
+      ]
+    ),
+    okText: "Close",
+    onOk() {},
+  });
+};
+
+
+
+const showRegisterModal = () => {
+  // State để lưu trữ giá trị nhập từ người dùng
+  const formData = reactive({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  Modal.info({
+    title: "Register an Account",
+    icon: createVNode(FormOutlined),
+    content: createVNode(
+      "div",
+      null,
+      [
+        createVNode("table", { class: "custom-table-reply" }, [
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column-reply" }, "Full Name"),
+            createVNode("td", { class: "data-column-reply" }, [
+              createVNode(Input, {
+                
+                onChange: (e) => (formData.fullName = e.target.value),
+              }),
+            ]),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column-reply" }, "Phone Number"),
+            createVNode("td", { class: "data-column-reply" }, [
+              createVNode(Input, {
+                
+                onChange: (e) => (formData.phoneNumber = e.target.value),
+              }),
+            ]),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column-reply" }, "Email"),
+            createVNode("td", { class: "data-column-reply" }, [
+              createVNode(Input, {
+                
+                onChange: (e) => (formData.email = e.target.value),
+              }),
+            ]),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column-reply" }, "Password"),
+            createVNode("td", { class: "data-column-reply" }, [
+              createVNode(Input.Password, {
+                
+                onChange: (e) => (formData.password = e.target.value),
+              }),
+            ]),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column-reply" }, "Confirm Password"),
+            createVNode("td", { class: "data-column-reply" }, [
+              createVNode(Input.Password, {
+                
+                onChange: (e) => (formData.confirmPassword = e.target.value),
+              }),
+            ]),
+          ]),
+        ]),
+      ]
+    ),
+    okText: "Register",
+    onOk() {
+      // Truy cập dữ liệu đã nhập từ người dùng
+      console.log("Form Data:", formData);
+    },
+  });
 };
 </script>
 
 <template>
     <AuthenticatedLayout>
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0">List of Tenants</h1>
-                        </div>
-                        <!-- button create -->
-                        <div class="col-sm-6">
-                            <div class="d-flex justify-content-end">
-                                <!-- Button to trigger modal -->
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#registrationModal" style="margin-right: 140px">
-                                    Add Tenant
-                                </button>
-                            </div>
-                        </div>
-                        <!--end button-->
-                    </div>
-                </div>
+
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <a-page-header
+                    style="border: 1px solid rgb(221,222,225); border-radius: 10px"
+                    title="List of Tenant"
+  
+                />
             </div>
 
-            <!-- Main content -->
-            <section class="content">
-                <div class="container-fluid">
-                    <!-- TABLE: LATEST ORDERS -->
-                    <div class="card">
-                        <div class="card-header border-transparent">
-                            <h3 class="card-title">List</h3>
-                        </div>
-                        <!-- /.card-header -->
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table m-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Number</th>
-                                            <th>Full name</th>
-                                            <th>Phone number</th>
-                                            <th>Email</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Dữ liệu sẽ được hiển thị ở đây -->
-                                        <tr v-for="(tenant, index) in tenants" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ tenant.name }}</td>
-                                            <td>{{ tenant.phone }}</td>
-                                            <td>{{ tenant.email }}</td>
-                                            <td>
-                                                <!-- Các action (ví dụ: xem chi tiết, xoá) sẽ được đặt ở đây -->
-                                                <button @click="viewDetails(tenant)"
-                                                    class="btn btn-primary btn-sm">Detail</button>
-                                                <button @click="deleteTenant(tenant.id)"
-                                                    class="btn btn-danger btn-sm">Delete</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.table-responsive -->
-                        </div>
-                        <!-- /.card-body -->
-                    </div>
-                    <!-- /.card -->
-
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div class="m-4 ml-0 float-left">
+                    <a-button
+                        type="primary"
+                        @click="showRegisterModal()"
+                    >
+                        <template #icon>
+                            <plus-circle-outlined />
+                        </template>
+                        Create Tenant
+                    </a-button>
                 </div>
-                <!-- /.container-fluid -->
-
-            </section>
-            <!-- /.content -->
-            <!-- Begin Detail Modal -->
-
-            <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="detailModalLabel">Details of the tenant's account</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <table class="table">
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">Full name</th>
-                                        <td>{{ selectedTenant.name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Phone number</th>
-                                        <td>{{ selectedTenant.phone }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Email</th>
-                                        <td>{{ selectedTenant.email }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Verified at</th>
-                                        <td>{{ selectedTenant.email_verified_at }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="pb-4 float-right">
+                    <a-space direction="vertical" clearIcon>
+                        <a-input-search
+                            v-model:value="value"
+                            placeholder="Input search text"
+                            enter-button="Search"
+                            style="width: 300px"
+                            @search="handleSearch"
+                            allow-clear
+                        >
+                        </a-input-search>
+                    </a-space>
                 </div>
+                <a-table :columns="columns" :data-source="Tenants">
+                    <template #headerCell="{ column }">
+                        <template v-if="column.key === 'name'">
+                            <span >
+                                
+                                Number
+                            </span>
+                        </template>
+                    </template>
+
+                    <template
+                        #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }"
+                    >
+                        <div style="padding: 8px">
+                            <a-input
+                                ref="searchInput"
+                                :placeholder="`Search ${column.dataIndex}`"
+                                :value="selectedKeys[0]"
+                                style="width: 188px; margin-bottom: 8px; display: block"
+                                @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+                                @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
+                            />
+                            <a-button
+                                type="primary"
+                                size="small"
+                                style="width: 90px; margin-right: 8px"
+                                @click="handleSearch(selectedKeys, confirm, column.dataIndex)"
+                            >
+                                <template #icon><search-outlined /></template>
+                                Search
+                            </a-button>
+                            <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
+                                Reset
+                            </a-button>
+                        </div>
+                    </template>
+                    <template #customFilterIcon="{ filtered }">
+                        <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
+                    </template>
+
+                    <template #bodyCell="{ column, record }">
+                        <template v-if="column.key === 'name'">
+
+                            </template>
+                        
+                        <template v-else-if="column.key === 'action'">
+                                <div class="flex gap-3 justify-center">
+                                  <a-tooltip title="Detail">
+                                    <eye-outlined
+                                      :style="{ fontSize: 19 }"
+                                      @click="showDetailsModal(record)"
+                                    />
+                                  </a-tooltip>
+
+                                    <a-tooltip title="Delete">
+                                        <delete-outlined
+                                            :style="{
+                                                fontSize: 19,
+                                                color: '#e80101',
+                                            }"
+                                            @click="showDeleteConfirm(record)"
+                                        />
+                                    </a-tooltip>
+                                </div>
+                            </template>
+                    </template>
+                </a-table>
             </div>
-
-            <!-- End  Modal Deatail -->
-
-            <!-- Add Tenant Modal -->
-            <div>
-                <!-- Button to trigger modal -->
-
-
-                <!-- Registration Modal -->
-                <div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="registrationModalLabel">Registration Account</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- Form for registration -->
-                                <form @submit.prevent="addTenant">
-                                    <div class="mb-3">
-                                        <label for="fullName" class="form-label">Full Name</label>
-                                        <input type="text" class="form-control" id="fullName" v-model="form.fullName"
-                                            required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email" v-model="form.email" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="phone" class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" v-model="form.phone" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="password" v-model="form.password"
-                                            required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="confirmPassword" class="form-label">Confirm Password</label>
-                                        <input type="password" class="form-control" id="confirmPassword"
-                                            v-model="form.confirmPassword" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Create</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- End Add Tenant Modal -->
-
-
         </div>
-        <!-- /.content-wrapper -->
-
     </AuthenticatedLayout>
 </template>
 
-<style>@import url('https://cdn.jsdelivr.net/npm/admin-lte@3.1.0/dist/css/adminlte.min.css');</style>
+<style >
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  border-radius: 10px; 
+}
+
+.custom-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 8px; 
+}
+
+.label-column {
+  font-weight: bold;
+  color: #333;
+}
+
+.data-column {
+  color: #666;
+}
+
+.label-column-reply{
+  font-weight: bold;
+  color: #333;
+  padding: 10px;
+}
+
+</style>
