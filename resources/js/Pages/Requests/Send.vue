@@ -215,7 +215,7 @@ const showReplyModal = (record) => {
         ]),
       ]
     ),
-    okText: "Close",
+    okText: "Create",
     onOk() {
       // Truy cập dữ liệu đã nhập từ người dùng
       console.log("Form Data:", formData);

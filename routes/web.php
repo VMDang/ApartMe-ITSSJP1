@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ApartmentController;
+use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\TenantAccountController;
 use App\Http\Controllers\Message\RequestMessageController;
@@ -63,5 +64,8 @@ Route::prefix('/send')->group(function () {
     Route::get('/', [RequestMessageController::class, 'send'])->name('requests.send'); 
 });
 
+Route::prefix('/documents')->group(function () {
+    Route::get('/', [DocumentsController::class, 'documents'])->name(''); 
+});
 
 require __DIR__.'/auth.php';
