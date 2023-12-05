@@ -16,7 +16,8 @@ import {
 } from "@ant-design/icons-vue";
 
 const props = defineProps({
-    tenants: Array
+    requests: Array,
+    user: Object,
 })
 
 const state = reactive({
@@ -27,26 +28,17 @@ const searchInput = ref();
 
 const columns = [
     {
-        title: "Number",
-        dataIndex: "number",
-        key: "number",
-        sorter: (a, b) => a.number.length - b.number.length,
-        sortDirections: ["descend", "ascend"],
-        customFilterDropdown: true,
-        onFilter: (value, record) => record.number.toString().toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-        title: "Full name",
-        dataIndex: "name",
-        key: "name",
-        sorter: (a, b) => a.name.length - b.name.length,
+        title: "Title",
+        dataIndex: "title",
+        key: "title",
+        sorter: (a, b) => a.title.length - b.title.length,
         sortDirections: ["descend", "ascend"],
     },
     {
-        title: "Email",
-        dataIndex: "email",
-        key: "email",
-        sorter: (a, b) => a.email - b.email,
+        title: "Content",
+        dataIndex: "content",
+        key: "content",
+        sorter: (a, b) => a.content - b.content,
     },
     {
         title: "Action",
@@ -76,21 +68,29 @@ const showDeleteConfirm = (record) => {
         content: createVNode(
             "div",
             { style: "color:red;" },
+            `Number: ${record.id}`
         ),
         okText: "Yes",
         okType: "danger",
         cancelText: "No",
 
-        onCancel() {},
-        onOk(){
+        onCancel() {
+            console.log("Cancelled");
+        },
+        onOk() {
+            const id = record.id;
+            const url = route("requests.destroy", { id: id });
+            Inertia.delete(url);
+            window.location.reload();
+            console.log("OK");
         },
     });
 };
-
-const showDetailsModal = (record) => {
+const showDetailsModal = (record, user) => {
+  console.log("showDetailsModal called with record:", record, user);
 
   Modal.info({
-    title: "Details of the tenant's account",
+    title: "Detail requests",
     icon: createVNode(EyeOutlined),
     content: createVNode(
       "div",
@@ -99,15 +99,23 @@ const showDetailsModal = (record) => {
         createVNode("table", { class: "custom-table" }, [
           createVNode("tr", null, [
             createVNode("td", { class: "label-column" }, "Full Name"),
-            createVNode("td", { class: "data-column" }, record.name),
+            createVNode("td", { class: "data-column" }, user.name),
           ]),
           createVNode("tr", null, [
             createVNode("td", { class: "label-column" }, "Phone Number"),
-            createVNode("td", { class: "data-column" }, record.phone),
+            createVNode("td", { class: "data-column" }, user.phone),
           ]),
           createVNode("tr", null, [
             createVNode("td", { class: "label-column" }, "Email"),
-            createVNode("td", { class: "data-column" }, record.email),
+            createVNode("td", { class: "data-column" }, user.email),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Title"),
+            createVNode("td", { class: "data-column" }, record.title),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Content"),
+            createVNode("td", { class: "data-column" }, record.content),
           ]),
         ])
       ]
@@ -117,19 +125,18 @@ const showDetailsModal = (record) => {
   });
 };
 
+const showCreateModal = (user) => {
 
-
-const showRegisterModal = () => {
   const formData = reactive({
-    fullName: "",
-    email: "",
-    phone: "",
-    password: "",
-    status: "1",
+    apartment_id: "", // cause role have not existed yet -> input
+    user_id: user.id,
+    is_owner: "1", // cause role have not existed yet -> auto 1
+    title: "",
+    content: "",
   });
 
   Modal.info({
-    title: "Register an Account",
+    title: "Create requests",
     icon: createVNode(FormOutlined),
     content: createVNode(
       "div",
@@ -137,57 +144,59 @@ const showRegisterModal = () => {
       [
         createVNode("table", { class: "custom-table-reply" }, [
           createVNode("tr", null, [
-            createVNode("td", { class: "label-column-reply" }, "Full Name"),
+            createVNode("td", { class: "label-column-reply" }, "Request to Apartment"),
             createVNode("td", { class: "data-column-reply" }, [
               createVNode(Input, {
-                onChange: (e) => (formData.fullName = e.target.value),
+                onChange: (e) => (formData.apartment_id = e.target.value),
               }),
             ]),
           ]),
           createVNode("tr", null, [
-            createVNode("td", { class: "label-column-reply" }, "Phone Number"),
-            createVNode("td", { class: "data-column-reply" }, [
+            createVNode("td", { class: "label-column-reply" }, "Title"),
+            createVNode("td", {rules : "[{ required: true, message: 'Please input Title!' }]", class: "data-column-reply" }, [
               createVNode(Input, {
-                onChange: (e) => (formData.phone = e.target.value),
+                onChange: (e) => (formData.title = e.target.value),
               }),
             ]),
           ]),
           createVNode("tr", null, [
-            createVNode("td", { class: "label-column-reply" }, "Email"),
+            createVNode("td", { class: "label-column-reply" }, "Content"),
             createVNode("td", { class: "data-column-reply" }, [
-              createVNode(Input, {
-                onChange: (e) => (formData.email = e.target.value),
+              createVNode(Input.TextArea, {
+                onChange: (e) => (formData.content = e.target.value),
               }),
             ]),
           ]),
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column-reply" }, "Password"),
-            createVNode("td", { class: "data-column-reply" }, [
-              createVNode(Input.Password, {
-                onChange: (e) => (formData.password = e.target.value),
-              }),
-            ]),
-          ]),
-
         ]),
       ]
     ),
-
-    okText: "Register",
+    okText: "Send",
     onOk() {
+        axios.post(route("requests.store"), {
+            apartment_id: formData.apartment_id,
+            title: formData.title,
+            content: formData.content,
+            user_id: formData.user_id,
+            is_owner: formData.is_owner,
+                onFinish: () => {
+                    formData.reset('apaartment_id', 'title', 'content');
+                }
+            });
     },
   });
 };
+
 </script>
 
 <template>
-    <AuthenticatedLayout>
+    <Head title="Message list" />
 
+    <AuthenticatedLayout>
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <a-page-header
                     style="border: 1px solid rgb(221,222,225); border-radius: 10px"
-                    title="List of Tenant"
+                    title="List of sent requests"
 
                 />
             </div>
@@ -196,12 +205,12 @@ const showRegisterModal = () => {
                 <div class="m-4 ml-0 float-left">
                     <a-button
                         type="primary"
-                        @click="showRegisterModal()"
+                        @click="showCreateModal(user)"
                     >
                         <template #icon>
                             <plus-circle-outlined />
                         </template>
-                        Create Tenant
+                        Create message
                     </a-button>
                 </div>
                 <div class="pb-4 float-right">
@@ -217,9 +226,13 @@ const showRegisterModal = () => {
                         </a-input-search>
                     </a-space>
                 </div>
-                <a-table :columns="columns" :data-source="tenants">
+                <a-table :columns="columns" :data-source="requests">
                     <template #headerCell="{ column }">
-
+                        <template v-if="column.key === 'name'">
+                            <span >
+                                Number
+                            </span>
+                        </template>
                     </template>
 
                     <template
@@ -262,7 +275,7 @@ const showRegisterModal = () => {
                                   <a-tooltip title="Detail">
                                     <eye-outlined
                                       :style="{ fontSize: 19 }"
-                                      @click="showDetailsModal(record)"
+                                      @click="showDetailsModal(record, user)"
                                     />
                                   </a-tooltip>
 
@@ -312,5 +325,4 @@ const showRegisterModal = () => {
   color: #333;
   padding: 10px;
 }
-
 </style>

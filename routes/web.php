@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\ApartmentController;
+use App\Http\Controllers\Owner\FacilityController;
 use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\TenantAccountController;
-use App\Http\Controllers\User\MessageController;
+use App\Http\Controllers\User\RequestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -55,11 +56,13 @@ Route::prefix('/apartments')->group(function () {
 
 Route::resource('/rooms', RoomController::class);
 
-Route::prefix('/messages')->group(function () {
-    Route::get('/sent', [MessageController::class, 'indexSent'])->name('messages.sent');
-    Route::get('/recv', [MessageController::class, 'indexRecv'])->name('messages.recv');
-    Route::post('/submit-form', [MessageController::class, 'store'])->name('messages.store');
-    Route::delete('/delete/{id}', [MessageController::class, 'destroy'])->name('messages.destroy');
+Route::prefix('/requests')->group(function () {
+    Route::get('/sent', [RequestController::class, 'indexSent'])->name('requests.sent');
+    Route::get('/recv', [RequestController::class, 'indexRecv'])->name('requests.recv');
+    Route::post('/submit-form', [RequestController::class, 'store'])->name('requests.store');
+    Route::delete('/delete/{id}', [RequestController::class, 'destroy'])->name('requests.destroy');
 });
+
+Route::resource('/facility', FacilityController::class);
 
 require __DIR__.'/auth.php';

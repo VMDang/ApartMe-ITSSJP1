@@ -5,7 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\RequestMail;
-use App\Http\Requests\StoreMessageRequest;
+use App\Http\Requests\StoreRequestRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class MessageController extends Controller
+class RequestController extends Controller
 {
     /**
      * Display sent Request
@@ -21,12 +21,12 @@ class MessageController extends Controller
     public function indexSent()
     {
         $user = User::query()->find(Auth::id());
-        $messages = DB::table("request_user")
+        $requests = DB::table("request_user")
             ->join("requests", "request_user.request_id", "=", "requests.id")
             ->where("request_user.user_id", "=", $user->id)
             ->select("requests.*")
             ->get();
-        return Inertia::render('User/Message/SentMessage', ['user' => $user, 'messages' => $messages]);
+        return Inertia::render('User/Requests/SentRequests', ['user' => $user, 'requests' => $requests]);
     }
 
     /**
@@ -34,31 +34,31 @@ class MessageController extends Controller
      */
     public function indexRecv()
     {
-        return Inertia::render('User/Message/ReceivedMessage');
+        return Inertia::render('User/Requests/ReceivedRequests');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMessageRequest $request)
+    public function store(StoreRequestRequest $request)
     {
         $request->validated();
-        $message = new RequestMail([
+        $requests = new RequestMail([
             'title' => $request->get('title'),
             'apartment_id' => $request->get('apartment_id'),
             'content' => $request->get('content'),
             'created_at' => now(),
         ]);
 
-        $message->save();
+        $requests->save();
 
         DB::table("request_user")->insert([
             'user_id' => $request->get('user_id'),
-            'request_id' => $message->id,
+            'request_id' => $requests->id,
             'is_owner' => $request->get('is_owner'),
         ]);
 
-        return Redirect::route('messages.sent')->with('success', 'Account added successfully');
+        return Redirect::route('requests.sent')->with('success', 'Account added successfully');
     }
 
     /**
@@ -66,10 +66,10 @@ class MessageController extends Controller
      */
     public function destroy($id)
     {
-        $message_delete = RequestMail::find($id);
-        $message_delete->delete();
-        $message_user = DB::table('request_user')->where('request_id', '=', $id);
-        $message_user->delete();
+        $requests_delete = RequestMail::find($id);
+        $requests_delete->delete();
+        $requests_user = DB::table('request_user')->where('request_id', '=', $id);
+        $requests_user->delete();
         return Redirect::back()->with('success', 'Account deleted successfully');
     }
 }
