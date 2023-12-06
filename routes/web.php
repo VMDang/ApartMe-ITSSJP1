@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\ApartmentController;
 use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\TenantAccountController;
-use App\Http\Controllers\User\MessageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -54,12 +53,5 @@ Route::prefix('/apartments')->group(function () {
 });
 
 Route::resource('/rooms', RoomController::class);
-
-Route::prefix('/messages')->group(function () {
-    Route::get('/sent', [MessageController::class, 'indexSent'])->name('messages.sent');
-    Route::get('/recv', [MessageController::class, 'indexRecv'])->name('messages.recv');
-    Route::post('/submit-form', [MessageController::class, 'store'])->name('messages.store');
-    Route::delete('/delete/{id}', [MessageController::class, 'destroy'])->name('messages.destroy');
-});
 
 require __DIR__.'/auth.php';
