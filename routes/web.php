@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ApartmentController;
 use App\Http\Controllers\Owner\RoomController;
+use App\Http\Controllers\Owner\InvoiceController;
 use App\Http\Controllers\Owner\TenantAccountController;
 use App\Http\Controllers\Owner\FacilityController;
 use App\Http\Controllers\User\RequestController;
@@ -45,6 +46,7 @@ Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner'])->g
 
     Route::resource('/rooms', RoomController::class);
     Route::resource('/facility', FacilityController::class);
+    Route::resource('/invoices', InvoiceController::class);
 });
 
 Route::middleware(['auth', 'verified', 'select.apartment'])->group(function () {
@@ -65,7 +67,6 @@ Route::middleware(['auth', 'verified', 'select.apartment'])->group(function () {
         Route::post('/submit-form', [RequestController::class, 'store'])->name('requests.store');
         Route::delete('/delete/{id}', [RequestController::class, 'destroy'])->name('requests.destroy');
     });
-
 });
 
 require __DIR__.'/auth.php';

@@ -10,7 +10,7 @@
                 <a-menu-item key="1">
                     <pie-chart-outlined />
                     <a :href="route('rooms.index')" class="menu-link"
-                        >List Rooms</a
+                        >Rooms</a
                     >
                 </a-menu-item>
                 <a-menu-item key="2">
@@ -24,11 +24,11 @@
                     <a :href="route('facility.index')" class="menu-link"
                     >Facilities</a>
                 </a-menu-item>
-<!--                <a-menu-item key="4">-->
-<!--                    <pie-chart-outlined />-->
-<!--                    <a :href="route('invoices.index')" class="menu-link"-->
-<!--                    >facilities</a>-->
-<!--                </a-menu-item>-->
+                <a-menu-item key="4">
+                    <pie-chart-outlined />
+                    <a :href="route('invoices.index')" class="menu-link"
+                    >Invoices</a>
+                </a-menu-item>
                 <a-sub-menu key="sub2">
                     <template #title>
                         <span>
@@ -52,7 +52,7 @@
     </a-layout>
 </template>
 
-<script>
+<script >
 import { ref } from "vue";
 
 export default {
