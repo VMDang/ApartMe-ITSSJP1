@@ -54,4 +54,20 @@ Route::prefix('/apartments')->group(function () {
 
 Route::resource('/rooms', RoomController::class);
 
+Route::prefix('/messages')->group(function () {
+    Route::get('/sent', [MessageController::class, 'indexSent'])->name('messages.sent');
+    Route::get('/recv', [MessageController::class, 'indexRecv'])->name('messages.recv');
+    Route::post('/submit-form', [MessageController::class, 'store'])->name('messages.store');
+    Route::delete('/delete/{id}', [MessageController::class, 'destroy'])->name('messages.destroy');
+});
+
+Route::prefix('/invoices')-> group(function (){
+    Route::get('/index', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/create', [InvoiceController::class, 'create'])->name('invoices.create');
+    Route::get('/show', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
+});
+
+
+
 require __DIR__.'/auth.php';
