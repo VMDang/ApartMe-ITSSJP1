@@ -8,12 +8,12 @@ const apartment = usePage().props.apartment;
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <!-- <Head title="Dashboard" /> -->
 
     <AuthenticatedLayout>
-        <template #header>
+        <!-- <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard</h2>
-        </template>
+        </template> -->
 
         <div class="py-12" v-if="apartment !== null">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

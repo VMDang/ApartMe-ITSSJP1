@@ -54,7 +54,9 @@ Route::prefix('/apartments')->group(function () {
     Route::get('/create', [ApartmentController::class, 'create'])->name('apartments.create');
 });
 
-Route::resource('/rooms', RoomController::class);
+Route::resource('/rooms', RoomController::class)->names([
+    'index' => 'rooms.index',
+]);
 
 Route::prefix('/requests')->group(function () {
     Route::get('/sent', [RequestController::class, 'indexSent'])->name('requests.sent');

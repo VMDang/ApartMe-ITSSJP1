@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* css cho view adminLTE */
+.content-header {
+    margin-top: -710px; 
+}
+
+/* css cho view Antd */
+
+.py-12 {
+    margin-top: -716px;
+    margin-left: 190px;
+
+  }
