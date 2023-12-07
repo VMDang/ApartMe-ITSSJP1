@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\ApartmentController;
-use App\Http\Controllers\Owner\FacilityController;
 use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\TenantAccountController;
+use App\Http\Controllers\Owner\FacilityController;
 use App\Http\Controllers\User\RequestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -30,41 +30,42 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    $apartment = \App\Models\Apartment::query()
-        ->where('id', '=', \Illuminate\Support\Facades\Session::get('selectedApartmentID'))
-        ->first();
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::prefix('/apartments')->group(function () {
+        Route::get('/create', [ApartmentController::class, 'create'])->name('apartments.create');
+    });
+});
 
-    return Inertia::render('Dashboard', [ 'apartment' => $apartment]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner'])->group(function () {
+    Route::prefix('/tenant-accounts')->group(function () {
+        Route::get('/', [TenantAccountController::class, 'create'])->name('tenant-accounts.view');
+        Route::post('/web/submit-form', [TenantAccountController::class, 'store'])->name('tenant-accounts.create');
+        Route::delete('/delete/{id}', [TenantAccountController::class, 'destroy'])->name('tenant-accounts.destroy');
+    });
 
-Route::middleware('auth')->group(function () {
+    Route::resource('/rooms', RoomController::class);
+    Route::resource('/facility', FacilityController::class);
+});
+
+Route::middleware(['auth', 'verified', 'select.apartment'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 //    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/dashboard', function () {
+        $apartment = \App\Models\Apartment::query()
+            ->where('id', '=', \Illuminate\Support\Facades\Session::get('selectedApartmentID'))
+            ->first();
+        return Inertia::render('Dashboard', [ 'apartment' => $apartment]);
+    })->name('dashboard');
+
+    Route::prefix('/requests')->group(function () {
+        Route::get('/sent', [RequestController::class, 'indexSent'])->name('requests.sent');
+        Route::get('/recv', [RequestController::class, 'indexRecv'])->name('requests.recv');
+        Route::post('/submit-form', [RequestController::class, 'store'])->name('requests.store');
+        Route::delete('/delete/{id}', [RequestController::class, 'destroy'])->name('requests.destroy');
+    });
+
 });
-
-Route::prefix('/tenant-accounts')->group(function () {
-    Route::get('/', [TenantAccountController::class, 'create'])->name('tenant-accounts.view');
-    Route::post('/web/submit-form', [TenantAccountController::class, 'store'])->name('tenant-accounts.create');
-    Route::delete('/delete/{id}', [TenantAccountController::class, 'destroy'])->name('tenant-accounts.destroy');
-});
-
-Route::prefix('/apartments')->group(function () {
-    Route::get('/create', [ApartmentController::class, 'create'])->name('apartments.create');
-});
-
-Route::resource('/rooms', RoomController::class)->names([
-    'index' => 'rooms.index',
-]);
-
-Route::prefix('/requests')->group(function () {
-    Route::get('/sent', [RequestController::class, 'indexSent'])->name('requests.sent');
-    Route::get('/recv', [RequestController::class, 'indexRecv'])->name('requests.recv');
-    Route::post('/submit-form', [RequestController::class, 'store'])->name('requests.store');
-    Route::delete('/delete/{id}', [RequestController::class, 'destroy'])->name('requests.destroy');
-});
-
-Route::resource('/facility', FacilityController::class);
 
 require __DIR__.'/auth.php';
