@@ -216,4 +216,7 @@ export default {
     </AuthenticatedLayout>
 </template>
 
-<style>@import url('https://cdn.jsdelivr.net/npm/admin-lte@3.1.0/dist/css/adminlte.min.css');</style>
+<style>
+@import url('https://cdn.jsdelivr.net/npm/admin-lte@3.1.0/dist/css/adminlte.min.css');
+
+</style>

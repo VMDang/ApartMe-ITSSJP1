@@ -177,3 +177,8 @@ const handleReset = clearFilters => {
         </div>
     </AuthenticatedLayout>
 </template>
+<style scoped>
+  .py-12 {
+    margin-top: -716px;
+  }
+</style>
