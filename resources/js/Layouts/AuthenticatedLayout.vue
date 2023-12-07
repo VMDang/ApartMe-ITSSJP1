@@ -198,7 +198,7 @@ const showingNavigationDropdown = ref(false);
 
 <style scoped>
 .content-header {
-    margin-top: 10px; 
+    margin-top: 10px;
 }
 
 </style>

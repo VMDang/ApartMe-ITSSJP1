@@ -186,7 +186,7 @@ const showReplyModal = (record) => {
         ),
         okText: "Create",
         onOk() {
-            axios.post(route("facility.store"), {
+            Inertia.post(route("facility.store"), {
             name: formData.name,
             description: formData.description,
             cost: formData.cost,
@@ -232,8 +232,7 @@ const showReplyModal = (record) => {
                     <template #headerCell="{ column }">
                         <template v-if="column.key === 'name'">
                             <span>
-
-                                Number
+                                Name
                             </span>
                         </template>
                     </template>

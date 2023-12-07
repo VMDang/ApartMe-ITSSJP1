@@ -27,13 +27,10 @@ const searchInput = ref();
 
 const columns = [
     {
-        title: "Number",
-        dataIndex: "number",
-        key: "number",
-        sorter: (a, b) => a.number.length - b.number.length,
-        sortDirections: ["descend", "ascend"],
-        customFilterDropdown: true,
-        onFilter: (value, record) => record.number.toString().toLowerCase().includes(value.toLowerCase()),
+        title: "",
+        dataIndex: "icon",
+        key: "icon",
+
     },
     {
         title: "Full name",
@@ -41,6 +38,11 @@ const columns = [
         key: "name",
         sorter: (a, b) => a.name.length - b.name.length,
         sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Phone Number",
+        dataIndex: "phone",
+        key: "phone",
     },
     {
         title: "Email",
@@ -117,7 +119,13 @@ const showDetailsModal = (record) => {
   });
 };
 
-
+const colorList = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae'];
+let currentColorIndex = 0
+const getColor = (index) => {
+    const color = colorList[currentColorIndex];
+    currentColorIndex = (currentColorIndex + 1) % colorList.length;
+    return color;
+}
 
 const showRegisterModal = () => {
   const formData = reactive({
@@ -181,8 +189,9 @@ const showRegisterModal = () => {
 </script>
 
 <template>
-    <AuthenticatedLayout>
+    <Head title="List Tenants" />
 
+    <AuthenticatedLayout>
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <a-page-header
@@ -252,10 +261,18 @@ const showRegisterModal = () => {
                         <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
                     </template>
 
-                    <template #bodyCell="{ column, record }">
+                    <template #bodyCell="{index, column, record }" :key="index">
+                        <template v-if="column.key === 'icon'">
+                            <a-avatar size="large" :style="{ backgroundColor: getColor(index), verticalAlign: 'middle' }">
+                                {{ record.name }}
+                            </a-avatar>
+<!--                            <a-avatar src="./assets/img/profile.png" />-->
+                        </template>
                         <template v-if="column.key === 'name'">
-
-                            </template>
+                            <span class="underline ">
+                                <strong class="text-blue-700 font-bold"> {{record.name}} </strong>
+                            </span>
+                        </template>
 
                         <template v-else-if="column.key === 'action'">
                                 <div class="flex gap-3 justify-center">
