@@ -5,24 +5,32 @@
       <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
         <a-menu-item key="1">
           <pie-chart-outlined />
-          <a :href="route('tenant-accounts.view')" class="menu-link">Tenants</a>
+          <a :href="route('tenant-accounts.view')" class="menu-link">
+            <span v-if="!collapsed">Tenants</span>
+          </a>
         </a-menu-item>
         <a-menu-item key="2">
           <pie-chart-outlined />
-          <a :href="route('rooms.index')" class="menu-link">List Rooms</a>
+          <a :href="route('rooms.index')" class="menu-link">
+            <span v-if="!collapsed">List Rooms</span>
+          </a>
         </a-menu-item>
         <a-sub-menu key="sub2">
           <template #title>
             <span>
               <user-outlined />
-              <span>Messages</span>
+              <span v-if="!collapsed">Messages</span>
             </span>
           </template>
           <a-menu-item key="5">
-            <a :href="route('messages.sent')" class="menu-link">Sent</a>
+            <a :href="route('messages.sent')" class="menu-link">
+              <span v-if="!collapsed">Sent</span>
+            </a>
           </a-menu-item>
           <a-menu-item key="6">
-            <a :href="route('messages.recv')" class="menu-link">Received</a>
+            <a :href="route('messages.recv')" class="menu-link">
+              <span v-if="!collapsed">Received</span>
+            </a>
           </a-menu-item>
         </a-sub-menu>
       </a-menu>
@@ -32,8 +40,13 @@
 
 <script>
 import { ref } from 'vue';
+import { PieChartOutlined, UserOutlined } from '@ant-design/icons-vue';
 
 export default {
+  components: {
+    PieChartOutlined,
+    UserOutlined,
+  },
   data() {
     return {
       collapsed: false,
