@@ -1,67 +1,77 @@
 <template>
-    <a-layout style="min-height: 100vh">
-        <a-layout-sider v-model:collapsed="collapsed" collapsible>
-            <div class="logo" />
-            <a-menu
-                v-model:selectedKeys="selectedKeys"
-                theme="dark"
-                mode="inline"
-            >
-                <a-menu-item key="1">
-                    <pie-chart-outlined />
-                    <a :href="route('rooms.index')" class="menu-link"
-                        >Rooms</a
-                    >
-                </a-menu-item>
-                <a-menu-item key="2">
-                    <pie-chart-outlined />
-                    <a :href="route('tenant-accounts.view')" class="menu-link"
-                        >Tenants</a
-                    >
-                </a-menu-item>
-                <a-menu-item key="3">
-                    <pie-chart-outlined />
-                    <a :href="route('facility.index')" class="menu-link"
-                    >Facilities</a>
-                </a-menu-item>
-                <a-menu-item key="4">
-                    <pie-chart-outlined />
-                    <a :href="route('invoices.index')" class="menu-link"
-                    >Invoices</a>
-                </a-menu-item>
-                <a-sub-menu key="sub2">
-                    <template #title>
-                        <span>
-                            <user-outlined />
-                            <span>Requests</span>
-                        </span>
-                    </template>
-                    <a-menu-item key="5">
-                        <a :href="route('requests.sent')" class="menu-link"
-                            >Sent</a
-                        >
-                    </a-menu-item>
-                    <a-menu-item key="6">
-                        <a :href="route('requests.recv')" class="menu-link"
-                            >Received</a
-                        >
-                    </a-menu-item>
-                </a-sub-menu>
-            </a-menu>
-        </a-layout-sider>
-    </a-layout>
+  <a-layout style="min-height: 100vh">
+    <a-layout-sider v-model:collapsed="collapsed" collapsible>
+      <div class="logo" />
+      <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
+        <a-menu-item key="1">
+          <home-outlined />
+          <a :href="route('rooms.index')" class="menu-link">
+            <span v-if="!collapsed">  Rooms</span>
+          </a>
+        </a-menu-item>
+        <a-menu-item key="2">
+          <user-outlined />
+          <a :href="route('tenant-accounts.view')" class="menu-link">
+            <span v-if="!collapsed">  Tenants</span>
+          </a>
+        </a-menu-item>
+        <a-menu-item key="3">
+          <build-outlined />
+          <a :href="route('facility.index')" class="menu-link">
+            <span v-if="!collapsed">  Facilities</span>
+          </a>
+        </a-menu-item>
+        <a-menu-item key="4">
+          <dollar-circle-outlined />
+          <a :href="route('invoices.index')" class="menu-link">
+            <span v-if="!collapsed">  Invoices</span>
+          </a>
+        </a-menu-item>
+        <a-sub-menu key="sub2">
+          <template #title>
+            <span>
+              <message-outlined />
+              <span v-if="!collapsed">Requests</span>
+            </span>
+          </template>
+          <a-menu-item key="5">
+            <a :href="route('requests.sent')" class="menu-link">Sent</a>
+          </a-menu-item>
+          <a-menu-item key="6">
+            <a :href="route('requests.recv')" class="menu-link">Received</a>
+          </a-menu-item>
+        </a-sub-menu>
+      </a-menu>
+    </a-layout-sider>
+  </a-layout>
 </template>
 
-<script >
-import { ref } from "vue";
+<script>
+import { ref } from 'vue';
+import {
+  PieChartOutlined,
+  UserOutlined,
+  MessageOutlined,
+  DollarCircleOutlined,
+  HomeOutlined,
+  BuildOutlined,
+} from '@ant-design/icons-vue';
 
 export default {
-    data() {
-        return {
-            collapsed: false,
-            selectedKeys: ["1"], // Default selected key
-        };
-    },
+  components: {
+    PieChartOutlined,
+    UserOutlined,
+    MessageOutlined,
+    DollarCircleOutlined,
+    HomeOutlined,
+    BuildOutlined,
+  },
+  data() {
+    return {
+      collapsed: false,
+      selectedKeys: ['1'], // Default selected key
+    };
+  },
 };
 </script>
 
@@ -77,5 +87,10 @@ export default {
 
 .menu-link.ant-menu-item-selected {
     background-color: #1890ff;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
 }
 </style>
