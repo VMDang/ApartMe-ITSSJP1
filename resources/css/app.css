@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* css cho view adminLTE */
-.content-header {
-    margin-top: -710px;
-}
 
 /* css cho view Antd */
 
