@@ -15,7 +15,7 @@
                 </a-menu-item>
                 <a-menu-item key="2">
                     <pie-chart-outlined />
-                    <a :href="route('tenant-accounts.view')" class="menu-link"
+                    <a :href="route('tenant-accounts.index')" class="menu-link"
                         >Tenants</a
                     >
                 </a-menu-item>

@@ -62,7 +62,7 @@ class User extends Authenticatable
 
     public function requests(): BelongsToMany
     {
-        return $this->belongsToMany(RequestMail::class)
+        return $this->belongsToMany(RequestMail::class, 'request_user', 'user_id', 'request_id')
             ->withPivot(['id', 'user_id', 'request_id', 'is_owner'])->withTimestamps();
     }
 

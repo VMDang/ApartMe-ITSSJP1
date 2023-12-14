@@ -39,9 +39,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner'])->group(function () {
     Route::prefix('/tenant-accounts')->group(function () {
-        Route::get('/', [TenantAccountController::class, 'create'])->name('tenant-accounts.view');
-        Route::post('/web/submit-form', [TenantAccountController::class, 'store'])->name('tenant-accounts.create');
-        Route::delete('/delete/{id}', [TenantAccountController::class, 'destroy'])->name('tenant-accounts.destroy');
+        Route::get('/', [TenantAccountController::class, 'index'])->name('tenant-accounts.index');
+        Route::get('/create', [TenantAccountController::class, 'create'])->name('tenant-accounts.create');
+        Route::post('/', [TenantAccountController::class, 'store'])->name('tenant-accounts.store');
+        Route::delete('/{user}', [TenantAccountController::class, 'destroy'])->name('tenant-accounts.destroy');
     });
 
     Route::resource('/rooms', RoomController::class);

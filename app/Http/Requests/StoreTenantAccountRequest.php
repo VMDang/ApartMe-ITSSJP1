@@ -24,9 +24,11 @@ class StoreTenantAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fullName' => ['required','string','max:255'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'name' => ['required','string','max:255'],
+            'email' => 'required|string|lowercase|email|max:255',
             'phone' => ['required','string','max:255'],
+            'rooms.*' => ['required', 'exists:rooms,id'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ];
     }
 }

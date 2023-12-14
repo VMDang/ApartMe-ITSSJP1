@@ -19,8 +19,6 @@ const form = useForm({
     apartment_type_id: 0,
 });
 
-console.log(usePage().props.errors);
-
 const submit = () => {
     form.apartment_type_id = document.getElementById('apartment_type_id').value;
     form.post(route('register'), {
