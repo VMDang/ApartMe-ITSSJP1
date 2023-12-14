@@ -19,6 +19,11 @@ class SelectApartment
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $role = User::query()->find(Auth::user()->getAuthIdentifier())->roles->first();
+        if ($role->name == "ADMIN") {
+            return $next($request);
+        }
+
         if (Session::get('selectedApartmentID') == null) {
             return redirect()->route('selectApartment.show');
         }
