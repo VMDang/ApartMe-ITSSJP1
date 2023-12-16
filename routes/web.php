@@ -46,7 +46,7 @@ Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner'])->g
     });
 
     Route::resource('/rooms', RoomController::class);
-    Route::resource('/facility', FacilityController::class);
+    Route::resource('/facilities', FacilityController::class);
     Route::resource('/invoices', InvoiceController::class);
 });
 

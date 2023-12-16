@@ -162,7 +162,8 @@ const getColor = (index) => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <a-page-header
                     style="border: 1px solid rgb(221,222,225); border-radius: 10px"
-                    title="List of Tenant"
+                    title="Tenant Management"
+                    sub-title="List tenants in apartment"
                 />
             </div>
 
@@ -193,7 +194,9 @@ const getColor = (index) => {
                 </div>
                 <a-table :columns="columns" :data-source="tenants">
                     <template #headerCell="{ column }">
-
+                        <template v-if="column.key === 'name'">
+                            <span style="color: #0a43d3"> Full Name </span>
+                        </template>
                     </template>
 
                     <template
@@ -228,10 +231,7 @@ const getColor = (index) => {
 
                     <template #bodyCell="{index, column, record }" :key="index">
                         <template v-if="column.key === 'icon'">
-                            <a-avatar size="large" :style="{ backgroundColor: getColor(index), verticalAlign: 'middle' }">
-                                {{ record.name }}
-                            </a-avatar>
-                            <!--                            <a-avatar src="./assets/img/profile.png" />-->
+                            <a-avatar size="large" src="./assets/img/user.png" />
                         </template>
                         <template v-if="column.key === 'name'">
                             <span class="underline ">

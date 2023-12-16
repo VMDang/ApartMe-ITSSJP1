@@ -107,13 +107,6 @@ const columns = [
         title: "Room",
         dataIndex: "room_name",
         key: "room_name",
-        sorter: (a, b) => a.room.length - b.room.length,
-        sortDirections: ["descend", "ascend"],
-    },
-    {
-        title: "Description",
-        dataIndex: "description",
-        key: "description",
     },
     {
         title: "Deadline",
@@ -207,7 +200,7 @@ const openNotification = (type, message, description) => {
                         border-radius: 10px;
                     "
                     sub-title="List Invoices in Apartment Selected"
-                    title="List Invoices"
+                    title="Invoices Management"
                 />
             </div>
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -240,7 +233,7 @@ const openNotification = (type, message, description) => {
             <a-table :columns="columns" :data-source="invoices">
                 <template #headerCell="{ column }">
                     <template v-if="column.key === 'name'">
-                        <span style="color: #1890ff"> Invoices Name </span>
+                        <span style="color: #0a43d3"> Invoices Name </span>
                     </template>
                 </template>
 
@@ -310,6 +303,13 @@ const openNotification = (type, message, description) => {
                 </template>
 
                 <template #bodyCell="{ column, record }">
+                    <template  v-if="column.key === 'name'">
+                        <span class="underline" @click="Inertia.get(route('invoices.show', {invoice: record.id}))">
+                            <strong class="text-blue-700 font-bold">
+                                {{ record.name }}
+                            </strong>
+                        </span>
+                    </template>
                     <template v-if="column.key === 'status_new'">
                         <span
                             v-if="record.status_new === 'Done'"

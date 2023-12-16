@@ -21,7 +21,7 @@
                 </a-menu-item>
                 <a-menu-item key="3">
                     <pie-chart-outlined />
-                    <a :href="route('facility.index')" class="menu-link"
+                    <a :href="route('facilities.index')" class="menu-link"
                     >Facilities</a>
                 </a-menu-item>
                 <a-menu-item key="4">
