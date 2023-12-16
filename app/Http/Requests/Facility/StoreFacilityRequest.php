@@ -25,9 +25,8 @@ class StoreFacilityRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'max:255'],
             'cost' => ['required', 'numeric', 'min:1', 'max:1000000000'],
-            'room_id' => ['required'],
+            'room' => ['required', 'numeric', Rule::exists('rooms', 'id')],
         ];
     }
 }

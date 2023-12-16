@@ -31,7 +31,7 @@ class TenantAccountController extends Controller
             $query->whereIn('room_id', $rooms->pluck('id'));
         })->get()->load('rooms');
 
-        return Inertia::render('Owner/Tenants/Index', ['tenants' => $tenants, ]);
+        return Inertia::render('Owner/Tenants/IndexNew', ['tenants' => $tenants, ]);
     }
 
     public function create(): Response

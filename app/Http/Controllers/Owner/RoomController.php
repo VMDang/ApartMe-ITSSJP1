@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 use Inertia\Response;
-use function Termwind\render;
 
 class RoomController extends Controller
 {
@@ -23,9 +22,8 @@ class RoomController extends Controller
     {
         $rooms = Room::query()->select(['id', 'name', 'floor', 'area', 'status', 'apartment_id'])
             ->where('apartment_id', '=', Session::get('selectedApartmentID'))
-            ->get()->load('users');
-
-        return Inertia::render('Owner/Rooms/Index', [
+            ->get()->load(['users', 'apartment']);
+        return Inertia::render('Owner/Rooms/IndexNew', [
             'rooms' => $rooms,
         ]);
     }
