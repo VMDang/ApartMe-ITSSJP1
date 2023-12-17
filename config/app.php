@@ -221,6 +221,12 @@ return [
         1 => 'Paid',
     ],
 
+    'payment_method' => [
+        0 => 'CARD',
+        1 => 'BANK-TRANSFER',
+        2 => 'CASH',
+    ],
+
     'request_user_is_owner' => [
         0 => 'False',
         1 => 'True',

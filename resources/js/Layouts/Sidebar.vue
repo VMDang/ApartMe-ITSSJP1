@@ -29,6 +29,11 @@
                     <a :href="route('invoices.index')" class="menu-link"
                     >Invoices</a>
                 </a-menu-item>
+                <a-menu-item key="5">
+                    <pie-chart-outlined />
+                    <a :href="route('payments.index')" class="menu-link"
+                    >Payments</a>
+                </a-menu-item>
                 <a-sub-menu key="sub2">
                     <template #title>
                         <span>

@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\CheckAdminAccount::class,
         'apartment.owner' => \App\Http\Middleware\CheckOwnerAccount::class,
         'select.apartment' => \App\Http\Middleware\SelectApartment::class,
+        'role' => \App\Http\Middleware\ShareRoleView::class,
     ];
 }

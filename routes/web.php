@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\ApartmentController;
-use App\Http\Controllers\Owner\RoomController;
-use App\Http\Controllers\Owner\InvoiceController;
-use App\Http\Controllers\Owner\TenantAccountController;
 use App\Http\Controllers\Owner\FacilityController;
-use App\Http\Controllers\User\RequestController;
+use App\Http\Controllers\Owner\InvoiceController;
+use App\Http\Controllers\Owner\RoomController;
+use App\Http\Controllers\Owner\TenantAccountController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\RequestController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,7 +38,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     });
 });
 
-Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner'])->group(function () {
+Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner', 'role'])->group(function () {
     Route::prefix('/tenant-accounts')->group(function () {
         Route::get('/', [TenantAccountController::class, 'index'])->name('tenant-accounts.index');
         Route::get('/create', [TenantAccountController::class, 'create'])->name('tenant-accounts.create');
@@ -47,10 +48,10 @@ Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner'])->g
 
     Route::resource('/rooms', RoomController::class);
     Route::resource('/facilities', FacilityController::class);
-    Route::resource('/invoices', InvoiceController::class);
+    Route::resource('/invoices', InvoiceController::class)->except(['index', 'show']);
 });
 
-Route::middleware(['auth', 'verified', 'select.apartment'])->group(function () {
+Route::middleware(['auth', 'verified', 'select.apartment', 'role'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 //    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -68,6 +69,14 @@ Route::middleware(['auth', 'verified', 'select.apartment'])->group(function () {
         Route::post('/submit-form', [RequestController::class, 'store'])->name('requests.store');
         Route::delete('/delete/{id}', [RequestController::class, 'destroy'])->name('requests.destroy');
     });
+
+    Route::get('invoices/', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+
+    Route::get('payments/', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('payments/create/invoice/{invoice}', [PaymentController::class, 'create'])->name('payments.create');
+    Route::post('payments/invoice/{invoice}', [PaymentController::class, 'store'])->name('payments.store');
+    Route::post('payments/approve/invoice/{invoice}', [PaymentController::class, 'approve'])->name('payments.approve');
 });
 
 require __DIR__.'/auth.php';
