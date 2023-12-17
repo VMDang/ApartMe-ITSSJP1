@@ -18,5 +18,5 @@ class ApartmentController extends Controller
     {
         $apartments = Apartment::all();
         return Inertia::render('Admin/ApartmentList', ['apartments' => $apartments, ]);
-    }
+    }   
 }

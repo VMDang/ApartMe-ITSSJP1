@@ -5,6 +5,8 @@ use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\InvoiceController;
 use App\Http\Controllers\Owner\TenantAccountController;
 use App\Http\Controllers\Owner\FacilityController;
+use App\Http\Controllers\Owner\HistoryController;
+use App\Http\Controllers\Owner\InfomationController;
 use App\Http\Controllers\User\RequestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -48,6 +50,8 @@ Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner'])->g
     Route::resource('/rooms', RoomController::class);
     Route::resource('/facility', FacilityController::class);
     Route::resource('/invoices', InvoiceController::class);
+    Route::resource('/history', HistoryController::class);
+    Route::resource('/infomation', InfomationController::class);
 });
 
 Route::middleware(['auth', 'verified', 'select.apartment'])->group(function () {

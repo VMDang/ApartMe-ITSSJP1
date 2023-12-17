@@ -195,7 +195,7 @@ const showCreateModal = (user) => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <a-page-header
-                    style="border: 1px solid rgb(221,222,225); border-radius: 10px"
+                    style="border: 1px solid rgb(221,222,225); border-radius: 10px; background-color: white;"
                     title="List of sent requests"
 
                 />
