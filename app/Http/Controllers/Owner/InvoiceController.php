@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
@@ -18,11 +19,24 @@ class InvoiceController extends Controller
 {
     public function index(): Response
     {
+        $currentRole = Auth::user()->currentRole();
         $roomsWithInvoices = Room::query()->where('apartment_id', '=', Session::get('selectedApartmentID'))
-            ->with('invoices')->get();
+            ->with(['invoices', 'users'])->get();
+
+        if ($currentRole == 'OWNER') {
+            $rooms = $roomsWithInvoices;
+        } elseif ($currentRole == 'TENANT') {
+            foreach ($roomsWithInvoices as $r) {
+                foreach ($r->users as $user) {
+                    if ($user->pivot->user_id == Auth::id()) {
+                        $rooms[] = $r;
+                    }
+                }
+            }
+        }
 
         return Inertia::render('Owner/Invoices/Index', [
-            'rooms' => $roomsWithInvoices,
+            'rooms' => $rooms,
         ]);
     }
 
@@ -54,7 +68,7 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice)
     {
         return Inertia::render('Owner/Invoices/Show', [
-            'invoice' => $invoice->load(['room']),
+            'invoice' => $invoice->load(['room', 'payment']),
         ]);
     }
 

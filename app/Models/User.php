@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -74,5 +76,22 @@ class User extends Authenticatable
             foreignPivotKey: 'user_id',
             relatedPivotKey: 'role_id'
         )->withPivot(['id', 'user_id', 'room_id', 'role_id'])->withTimestamps();
+    }
+
+    public function currentRole(): string
+    {
+        $roles = User::query()->find(Auth::id())->roles;
+
+        if ($roles->first()->name == 'ADMIN') {
+            return 'ADMIN';
+        } else {
+            $apartmentSelected = Apartment::query()->find(Session::get('selectedApartmentID'));
+            $hasRoleOwner = User::query()->find(Auth::id())->roles->contains('name', 'OWNER');
+            if (isset($apartmentSelected) && Auth::user()->email == $apartmentSelected->owner_email && $hasRoleOwner) {
+                return 'OWNER';
+            } else {
+                return 'TENANT';
+            }
+        }
     }
 }

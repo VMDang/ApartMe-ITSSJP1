@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Invoice;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
-class StoreInvoiceRequest extends FormRequest
+class StorePaymentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,9 @@ class StoreInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'room' => ['required', 'numeric', Rule::exists('rooms', 'id')],
-            'total' => ['required', 'numeric','min:1' ,'max:100000000'],
-            'deadline' => 'required|date|after:today',
-            'description' => ['string', 'max:255'],
-        ];
+            'payment_method' => ['required', Rule::in(array_values(config('app.payment_method')))],
+            'total' => ['required', 'numeric', 'min:1', 'max:1000000000'],
+            'message' => ['max:255'],
+            ];
     }
 }

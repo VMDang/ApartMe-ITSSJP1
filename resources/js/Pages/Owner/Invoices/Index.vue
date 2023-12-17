@@ -10,7 +10,8 @@ import {
     PlusCircleOutlined,
     SearchOutlined,
     CheckCircleFilled,
-    CloseCircleFilled
+    CloseCircleFilled,
+    FileDoneOutlined
 } from "@ant-design/icons-vue";
 import { Modal, notification } from "ant-design-vue";
 import useState from "ant-design-vue/lib/_util/hooks/useState.js";
@@ -26,6 +27,7 @@ const state = reactive({
 });
 const searchInput = ref();
 const value = ref("");
+const role = usePage().props.role
 
 const newInvoices = usePage().props.rooms.flatMap((room) => {
     if (room.invoices.length >= 1) {
@@ -311,18 +313,18 @@ const openNotification = (type, message, description) => {
                         </span>
                     </template>
                     <template v-if="column.key === 'status_new'">
-                        <span
+                        <a-tooltip title="Done"
                             v-if="record.status_new === 'Done'"
                             style="color: #1890ff"
                         >
                             <check-circle-filled class="text-green-700" style="font-size: x-large"  />
-                        </span>
-                        <span
+                        </a-tooltip>
+                        <a-tooltip title="Not Done"
                             v-if="record.status_new === 'Not Done'"
                             style="color: #e80101"
                         >
                             <close-circle-filled class="text-rose-600" style="font-size: x-large"/>
-                        </span>
+                        </a-tooltip>
                     </template>
                     <template v-if="column.key === 'total'">
                         <span class="text-amber-900">
@@ -343,7 +345,7 @@ const openNotification = (type, message, description) => {
                                     "
                                 />
                             </a-tooltip>
-                            <a-tooltip title="Edit">
+                            <a-tooltip v-if="role === 'OWNER'" title="Edit">
                                 <edit-outlined
                                     :style="{
                                         fontSize: 19,
@@ -358,13 +360,22 @@ const openNotification = (type, message, description) => {
                                     "
                                 />
                             </a-tooltip>
-                            <a-tooltip title="Delete">
+                            <a-tooltip v-if="role === 'OWNER'" title="Delete">
                                 <delete-outlined
                                     :style="{
                                         fontSize: 19,
                                         color: '#e80101',
                                     }"
                                     @click="showDeleteConfirm(record)"
+                                />
+                            </a-tooltip>
+                            <a-tooltip v-if="role === 'TENANT' && record.status_new === 'Not Done'" title="Payment">
+                                <file-done-outlined
+                                    :style="{
+                                        fontSize: 19,
+                                        color: '#1890ff',
+                                    }"
+                                    @click="Inertia.get(route('payments.create', { invoice: record.id }))"
                                 />
                             </a-tooltip>
                         </div>
