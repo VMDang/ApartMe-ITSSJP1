@@ -16,23 +16,23 @@ class ApartmentTypeSeeder extends Seeder
         DB::table('apartment_types')->insert([
             [
                 'name' => 'Apartment',
-                'description' => 'Multi-storey apartments with a large number of rooms,
-                 often serving families, high prices, long-term stays',
+                'description' => 'Multi-storey apartments with a large number of rooms, '.
+                    'often serving families, high prices, long-term stays',
             ],
             [
                 'name' => 'Mini Apartment',
-                'description' => 'Mini apartments with a small number of floors,
-                 built for business purposes and rented in large quantities',
+                'description' => 'Mini apartments with a small number of floors, '.
+                    'built for business purposes and rented in large quantities',
             ],
             [
                 'name' => "Motel",
-                'description' => 'Small-scale boarding houses, suitable for short-term rentals,
-                 low prices, often with few floors',
+                'description' => 'Small-scale boarding houses, suitable for short-term rentals, '.
+                    'low prices, often with few floors',
             ],
             [
                 'name' => 'Whole House',
-                'description' => 'Whole house but the owner does not use it but rents it out,
-                 suitable for families and small groups',
+                'description' => 'Whole house but the owner does not use it but rents it out, '.
+                    'suitable for families and small groups',
             ],
         ]);
     }

@@ -2,7 +2,7 @@
 import {Head, usePage} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {Inertia} from "@inertiajs/inertia";
-import {DeleteOutlined, EditOutlined, EyeOutlined, SearchOutlined, SmileOutlined} from "@ant-design/icons-vue";
+import {EyeOutlined, SearchOutlined, SmileOutlined} from "@ant-design/icons-vue";
 import {createVNode, reactive, ref} from "vue";
 import {Modal} from "ant-design-vue";
 
@@ -373,10 +373,31 @@ const showDetailsModalTenant = (record) => {
     </AuthenticatedLayout>
 </template>
 <style>
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    border-radius: 10px;
+}
 
-  .custom-table td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      border-radius: 8px;
-  }
+.custom-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.label-column {
+    font-weight: bold;
+    color: #333;
+}
+
+.data-column {
+    color: #666;
+}
+
+.label-column-reply {
+    font-weight: bold;
+    color: #333;
+    padding: 10px;
+}
 </style>

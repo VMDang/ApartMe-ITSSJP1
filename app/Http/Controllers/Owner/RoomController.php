@@ -8,6 +8,7 @@ use App\Models\Room;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
@@ -20,9 +21,24 @@ class RoomController extends Controller
      */
     public function index(): Response
     {
-        $rooms = Room::query()->select(['id', 'name', 'floor', 'area', 'status', 'apartment_id'])
+        $currentRole = Auth::user()->currentRole();
+
+        $roomsAll = Room::query()->select(['id', 'name', 'floor', 'area', 'status', 'apartment_id'])
             ->where('apartment_id', '=', Session::get('selectedApartmentID'))
             ->get()->load(['users', 'apartment']);
+
+        if ($currentRole == 'OWNER') {
+            $rooms = $roomsAll;
+        } else {
+            foreach ($roomsAll as $r) {
+                foreach ($r->users as $user) {
+                    if ($user->pivot->user_id == Auth::id()) {
+                        $rooms[] = $r;
+                    }
+                }
+            }
+        }
+
         return Inertia::render('Owner/Rooms/IndexNew', [
             'rooms' => $rooms,
         ]);

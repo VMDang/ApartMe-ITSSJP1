@@ -5,6 +5,7 @@ use App\Http\Controllers\Owner\FacilityController;
 use App\Http\Controllers\Owner\InvoiceController;
 use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\TenantAccountController;
+use App\Http\Controllers\Owner\HistoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\RequestController;
@@ -46,9 +47,10 @@ Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner', 'ro
         Route::delete('/{user}', [TenantAccountController::class, 'destroy'])->name('tenant-accounts.destroy');
     });
 
-    Route::resource('/rooms', RoomController::class)->except('show');
+    Route::resource('/rooms', RoomController::class)->except(['index', 'show']);
     Route::resource('/facilities', FacilityController::class);
     Route::resource('/invoices', InvoiceController::class)->except(['index', 'show']);
+    Route::resource('/history', HistoryController::class);
 });
 
 Route::middleware(['auth', 'verified', 'select.apartment', 'role'])->group(function () {
@@ -79,6 +81,9 @@ Route::middleware(['auth', 'verified', 'select.apartment', 'role'])->group(funct
     Route::post('payments/approve/invoice/{invoice}', [PaymentController::class, 'approve'])->name('payments.approve');
 
     Route::get('/rooms/{room}', [RoomController::class, 'show'])->name('rooms.show');
+    Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+
+    Route::get('/apartments/{apartment?}', [ApartmentController::class, 'show'])->name('apartments.show');
 });
 
 require __DIR__.'/auth.php';
