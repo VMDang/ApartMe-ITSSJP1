@@ -46,7 +46,7 @@ Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner', 'ro
         Route::delete('/{user}', [TenantAccountController::class, 'destroy'])->name('tenant-accounts.destroy');
     });
 
-    Route::resource('/rooms', RoomController::class);
+    Route::resource('/rooms', RoomController::class)->except('show');
     Route::resource('/facilities', FacilityController::class);
     Route::resource('/invoices', InvoiceController::class)->except(['index', 'show']);
 });
@@ -77,6 +77,8 @@ Route::middleware(['auth', 'verified', 'select.apartment', 'role'])->group(funct
     Route::get('payments/create/invoice/{invoice}', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('payments/invoice/{invoice}', [PaymentController::class, 'store'])->name('payments.store');
     Route::post('payments/approve/invoice/{invoice}', [PaymentController::class, 'approve'])->name('payments.approve');
+
+    Route::get('/rooms/{room}', [RoomController::class, 'show'])->name('rooms.show');
 });
 
 require __DIR__.'/auth.php';

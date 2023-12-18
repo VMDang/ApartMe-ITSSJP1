@@ -60,7 +60,7 @@ class RoomController extends Controller
     public function show(Room $room)
     {
         return Inertia::render('Owner/Rooms/Show', [
-            'room' => $room->load(['users', 'apartment']),
+            'room' => $room->load(['users', 'apartment', 'facilities']),
         ]);
     }
 

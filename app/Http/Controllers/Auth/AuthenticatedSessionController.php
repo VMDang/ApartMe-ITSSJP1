@@ -60,7 +60,8 @@ class AuthenticatedSessionController extends Controller
                 )->apartment->id;
                 Session::put('selectedApartmentID', $apartmentID);
 
-                return redirect()->route('dashboard');      // Go to Tenant dashboard
+                $room = Auth::user()->rooms->first();
+                return redirect()->route('rooms.show', $room->id);
             }
         } elseif (count($userLogged->roles) > 1) {
             return redirect()->route('selectApartment.show');
@@ -108,7 +109,8 @@ class AuthenticatedSessionController extends Controller
                     // User is logging select a apartment role tenant
                     Session::put('selectedApartmentID', $apartment->id);
 
-                    return redirect()->route('dashboard');      // Go to Tenant dashboard
+                    $room = Auth::user()->rooms->first();
+                    return redirect()->route('rooms.show', $room->id);
                 }
             }
         }
