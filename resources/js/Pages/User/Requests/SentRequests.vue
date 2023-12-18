@@ -31,14 +31,13 @@ const columns = [
         title: "Title",
         dataIndex: "title",
         key: "title",
-        sorter: (a, b) => a.title.length - b.title.length,
-        sortDirections: ["descend", "ascend"],
+        customFilterDropdown: true,
+        onFilter: (value, record) => record.title.toString().toLowerCase().includes(value.toLowerCase()),
     },
     {
         title: "Content",
         dataIndex: "content",
         key: "content",
-        sorter: (a, b) => a.content - b.content,
     },
     {
         title: "Action",
@@ -195,7 +194,7 @@ const showCreateModal = (user) => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <a-page-header
-                    style="border: 1px solid rgb(221,222,225); border-radius: 10px"
+                    style="border: 1px solid rgb(221,222,225); border-radius: 10px; background-color: white;"
                     title="List of sent requests"
 
                 />
@@ -228,10 +227,8 @@ const showCreateModal = (user) => {
                 </div>
                 <a-table :columns="columns" :data-source="requests">
                     <template #headerCell="{ column }">
-                        <template v-if="column.key === 'name'">
-                            <span >
-                                Number
-                            </span>
+                        <template v-if="column.key === 'title'">
+                            <span style="color: #1890ff"> Title </span>
                         </template>
                     </template>
 
@@ -266,11 +263,7 @@ const showCreateModal = (user) => {
                     </template>
 
                     <template #bodyCell="{ column, record }">
-                        <template v-if="column.key === 'name'">
-
-                            </template>
-
-                        <template v-else-if="column.key === 'action'">
+                        <template v-if="column.key === 'action'">
                                 <div class="flex gap-3 justify-center">
                                   <a-tooltip title="Detail">
                                     <eye-outlined
@@ -279,7 +272,7 @@ const showCreateModal = (user) => {
                                     />
                                   </a-tooltip>
 
-                                    <a-tooltip title="Delete">
+                                    <a-tooltip v-if="usePage().props.role === 'OWNER'" title="Delete">
                                         <delete-outlined
                                             :style="{
                                                 fontSize: 19,

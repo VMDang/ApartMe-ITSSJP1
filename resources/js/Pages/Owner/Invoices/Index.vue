@@ -199,7 +199,7 @@ const openNotification = (type, message, description) => {
                 <a-page-header
                     style="
                         border: 1px solid rgb(221, 222, 225);
-                        border-radius: 10px;
+                        border-radius: 10px;background-color: white;
                     "
                     sub-title="List Invoices in Apartment Selected"
                     title="Invoices Management"

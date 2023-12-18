@@ -25,6 +25,7 @@ class RequestController extends Controller
             ->join("requests", "request_user.request_id", "=", "requests.id")
             ->where("request_user.user_id", "=", $user->id)
             ->select("requests.*")
+            ->distinct()
             ->get();
         return Inertia::render('User/Requests/SentRequests', ['user' => $user, 'requests' => $requests]);
     }
