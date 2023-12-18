@@ -46,7 +46,7 @@ class AuthenticatedSessionController extends Controller
             $roleName = $userLogged->roles->first()->name;
 
             if ($roleName == 'ADMIN') {
-                return redirect()->route('dashboard');      // Go to Admin page registration
+                return redirect()->route('registrations.index');      // Go to Admin page registration
             } elseif ($roleName == "OWNER") {
                 Session::put(
                     'selectedApartmentID',
@@ -60,7 +60,7 @@ class AuthenticatedSessionController extends Controller
                 )->apartment->id;
                 Session::put('selectedApartmentID', $apartmentID);
 
-                return redirect()->route('rooms.index');
+                return redirect()->route('apartments.show');
             }
         } elseif (count($userLogged->roles) > 1) {
             return redirect()->route('selectApartment.show');
@@ -108,7 +108,7 @@ class AuthenticatedSessionController extends Controller
                     // User is logging select a apartment role tenant
                     Session::put('selectedApartmentID', $apartment->id);
 
-                    return redirect()->route('rooms.index');
+                    return redirect()->route('apartments.show');
                 }
             }
         }

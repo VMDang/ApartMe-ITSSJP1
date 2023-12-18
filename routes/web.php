@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ApartmentController;
+use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\Owner\FacilityController;
 use App\Http\Controllers\Owner\InvoiceController;
 use App\Http\Controllers\Owner\RoomController;
@@ -33,10 +34,9 @@ Route::get('/', function () {
     ]);
 });
 
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::prefix('/apartments')->group(function () {
-        Route::get('/create', [ApartmentController::class, 'create'])->name('apartments.create');
-    });
+Route::middleware(['auth', 'admin', 'role'])->group(function () {
+    Route::get('apartments/index', [ApartmentController::class, 'index'])->name('apartments.index');
+    Route::resource('registrations', RegistrationController::class)->only(['index', 'show', 'update', 'destroy']);
 });
 
 Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner', 'role'])->group(function () {

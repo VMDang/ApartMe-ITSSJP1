@@ -187,9 +187,9 @@ const showDeleteConfirm = (record) => {
             </div>
 
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-end">
                     <div class="m-4">
-                        <a-button
+                        <a-button v-if="usePage().props.role === 'OWNER'"
                             type="primary"
                             @click="Inertia.get(route('rooms.create'))"
                         >
@@ -200,7 +200,7 @@ const showDeleteConfirm = (record) => {
                         </a-button>
                     </div>
 
-                    <div class="pb-4">
+                    <div class="mt-4 pb-4 float-right">
                         <a-space direction="vertical" clearIcon>
                             <a-input-search
                                 v-model:value="value"
@@ -214,7 +214,6 @@ const showDeleteConfirm = (record) => {
                         </a-space>
                     </div>
                 </div>
-
                 <div>
                     <a-list
                         :grid="{ gutter: 16, column: 3 }"
