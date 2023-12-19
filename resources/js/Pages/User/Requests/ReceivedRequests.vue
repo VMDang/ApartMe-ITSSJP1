@@ -1,320 +1,258 @@
-<script >
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+<script setup>
+import {Head, usePage} from "@inertiajs/vue3";
+import {createVNode, reactive, ref, defineProps} from "vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { Input, Modal } from "ant-design-vue";
+import { Inertia } from "@inertiajs/inertia";
+import axios from "axios";
 
-export default {
-  components: { AuthenticatedLayout },
-  props: {
-    tenants: {
-      type: Array,
-      default: () => ([
-        { id: 1, title: 'Title 1', content: 'Content 1', fullName: 'John Doe', phoneNumber: '123-456-7890', email: 'john@example.com' },
-        { id: 2, title: 'Title 2', content: 'Content 2', fullName: 'Jane Doe', phoneNumber: '123-456-7890', email: ''},
-        { id: 3, title: 'Title 3', content: 'Content 3', fullName: 'John Doe', phoneNumber: '123-456-7890', email: ''},
+import {
+    PlusCircleOutlined,
+    DeleteOutlined,
+    EyeOutlined,
+    ExclamationCircleOutlined,
+    SearchOutlined,
+    FormOutlined,
+} from "@ant-design/icons-vue";
 
-      ]),
+const props = defineProps({
+    requests: Array,
+    user: Object,
+    apartments: Array,
+})
+
+const state = reactive({
+    searchText: '',
+    searchedColumn: '',
+});
+const searchInput = ref();
+
+const columns = [
+    {
+        title: "Title",
+        dataIndex: "title",
+        key: "title",
+        sorter: (a, b) => a.title.length - b.title.length,
+        sortDirections: ["descend", "ascend"],
     },
-  },
-  data() {
-    return {
-      reply: {
-        sender: '',
-        title: '',
-        content: '',
-      },
-      detailInfo: {},
-    };
-  },
-  methods: {
-    viewDetails(tenant) {
-      this.detailInfo = {
-        fullName: tenant.fullName,
-        phoneNumber: tenant.phoneNumber,
-        email: tenant.email,
-        title: tenant.title,
-        content: tenant.content,
-      };
-
-      // Mở modal chi tiết
-      $('#detailModal').modal('show');
+    {
+        title: "Content",
+        dataIndex: "content",
+        key: "content",
+        sorter: (a, b) => a.content - b.content,
     },
-
-    openReplyModal(sender) {
-      this.reply.sender = sender;
-      $('#replyModal').modal('show');
+    {
+        title: "Action",
+        key: "action",
+        align: "center",
     },
+];
 
-    closeReplyModal() {
-      $('#replyModal').modal('hide');
-    },
+const value = ref("");
 
-    sendReply() {
-      this.closeReplyModal();
-    },
-
-    confirmDelete(id) {
-      // Lưu id vào biến để sử dụng khi xác nhận xóa
-      this.idToDelete = id;
-
-      // Mở modal xác nhận xóa
-      $('#confirmDeleteModal').modal('show');
-    },
-
-    deleteConfirmed() {
-      // Thực hiện xóa với id đã được lưu
-      const id = this.idToDelete;
-      // Thực hiện xóa, ví dụ:
-      // this.deleteTenant(id);
-      console.log(`Deleting item with id ${id}`);
-
-      // Sau khi xóa, đóng modal xác nhận
-      $('#confirmDeleteModal').modal('hide');
-    },
-
-    openDetailModal(tenant) {
-      this.detailInfo = {
-        fullName: tenant.fullName,
-        phoneNumber: tenant.phoneNumber,
-        email: tenant.email,
-        title: tenant.title,
-        content: tenant.content,
-      };
-      $('#detailModal').modal('show');
-    },
-
-    closeDetailModal() {
-      $('#detailModal').modal('hide');
-    },
-  },
+const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    state.searchText = selectedKeys[0];
+    state.searchedColumn = dataIndex;
 };
+const handleReset = clearFilters => {
+    clearFilters({
+        confirm: true,
+    });
+    state.searchText = '';
+};
+
+const showDeleteConfirm = (record) => {
+    Modal.confirm({
+        title: "Are you sure you want to delete?",
+        icon: createVNode(ExclamationCircleOutlined),
+        content: createVNode(
+            "div",
+            { style: "color:red;" },
+            `Number: ${record.id}`
+        ),
+        okText: "Yes",
+        okType: "danger",
+        cancelText: "No",
+
+        onCancel() {
+            console.log("Cancelled");
+        },
+        onOk() {
+            const id = record.id;
+            const url = route("requests.destroy", { id: id });
+            Inertia.delete(url);
+            window.location.reload();
+            console.log("OK");
+        },
+    });
+};
+const showDetailsModal = (record, user) => {
+  console.log("showDetailsModal called with record:", record, user);
+
+  Modal.info({
+    title: "Detail requests",
+    icon: createVNode(EyeOutlined),
+    content: createVNode(
+      "div",
+      null,
+      [
+        createVNode("table", { class: "custom-table" }, [
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Full Name"),
+            createVNode("td", { class: "data-column" }, record.name),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Phone Number"),
+            createVNode("td", { class: "data-column" }, record.phone),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Email"),
+            createVNode("td", { class: "data-column" }, record.email),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Title"),
+            createVNode("td", { class: "data-column" }, record.title),
+          ]),
+          createVNode("tr", null, [
+            createVNode("td", { class: "label-column" }, "Content"),
+            createVNode("td", { class: "data-column" }, record.content),
+          ]),
+        ])
+      ]
+    ),
+    okText: "Close",
+    onOk() {},
+  });
+};
+
 </script>
 
 <template>
-  <AuthenticatedLayout>
-    <div class="content-wrapper">
-      <!-- Content Header -->
-      <div class="content-header">
-        <div class="container-fluid">
-          <div class="row mb-2">
-            <div class="col-sm-6">
-              <h1 class="m-0">List of received messages</h1>
-            </div>
-          </div>
-        </div>
-      </div>
+    <Head title="Message list" />
 
-      <!-- Main content -->
-      <section class="content">
-        <div class="container-fluid">
-          <!--  -->
-          <div class="card">
-            <div class="card-header border-transparent">
-              <h3 class="card-title"></h3>
-            </div>
-            <!-- /.card-header -->
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table m-0">
-                  <thead>
-                    <tr>
-                      <th>Number</th>
-                      <th>Title</th>
-                      <th>Content</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <!-- Dữ liệu -->
-                    <tr v-for="(tenant, index) in tenants" :key="index">
-                      <td>{{ index + 1 }}</td>
-                      <td>{{ tenant.title }}</td>
-                      <td>{{ tenant.content }}</td>
-                      <td>
-                        <!-- Các action -->
-                        <button @click="viewDetails(tenant)" class="btn btn-primary btn-sm">Detail</button>
-                        <button @click="confirmDelete(tenant.id)" class="btn btn-danger btn-sm">Delete</button>
-                        <button @click="openReplyModal(tenant.title)" class="btn btn-success btn-sm">Reply</button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <!-- /.table-responsive -->
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
-        </div>
-        <!-- /.container-fluid -->
-      </section>
-      <!-- /.content -->
+    <AuthenticatedLayout>
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <a-page-header
+                    style="border: 1px solid rgb(221,222,225); border-radius: 10px"
+                    title="List of receive requests"
 
-      <!-- Modal Reply -->
-      <div class="modal" id="replyModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title header-reply">Reply Form</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeReplyModal">
-                <span aria-hidden="true">&times;</span>
-              </button>
+                />
             </div>
-            <div class="modal-body">
-              <!-- Form Reply -->
-              <form @submit.prevent="sendReply">
-                <div class="form-group">
-                  <label for="sender">Sender:</label>
-                  <input type="text" class="form-control" id="sender" v-model="reply.sender" >
+
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+                <div class="pb-4 float-right">
+                    <a-space direction="vertical" clearIcon>
+                        <a-input-search
+                            v-model:value="value"
+                            placeholder="Input search text"
+                            enter-button="Search"
+                            style="width: 300px"
+                            @search="handleSearch"
+                            allow-clear
+                        >
+                        </a-input-search>
+                    </a-space>
                 </div>
-                <div class="form-group">
-                  <label for="title">Title:</label>
-                  <input type="text" class="form-control" id="title" v-model="reply.title">
+                <a-table :columns="columns" :data-source="requests">
+                    <template #headerCell="{ column }">
+                        <template v-if="column.key === 'name'">
+                            <span >
+                                Number
+                            </span>
+                        </template>
+                    </template>
 
-                </div>
-                <div class="form-group">
-                  <label for="content">Content:</label>
-                  <textarea class="form-control" id="content" v-model="reply.content"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Send</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="closeReplyModal">Close</button>
-              </form>
-              <!-- End Form Reply -->
+                    <template
+                        #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }"
+                    >
+                        <div style="padding: 8px">
+                            <a-input
+                                ref="searchInput"
+                                :placeholder="`Search ${column.dataIndex}`"
+                                :value="selectedKeys[0]"
+                                style="width: 188px; margin-bottom: 8px; display: block"
+                                @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+                                @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
+                            />
+                            <a-button
+                                type="primary"
+                                size="small"
+                                style="width: 90px; margin-right: 8px"
+                                @click="handleSearch(selectedKeys, confirm, column.dataIndex)"
+                            >
+                                <template #icon><search-outlined /></template>
+                                Search
+                            </a-button>
+                            <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
+                                Reset
+                            </a-button>
+                        </div>
+                    </template>
+                    <template #customFilterIcon="{ filtered }">
+                        <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
+                    </template>
+
+                    <template #bodyCell="{ column, record }">
+                        <template v-if="column.key === 'name'">
+
+                            </template>
+
+                        <template v-else-if="column.key === 'action'">
+                                <div class="flex gap-3 justify-center">
+                                  <a-tooltip title="Detail">
+                                    <eye-outlined
+                                      :style="{ fontSize: 19 }"
+                                      @click="showDetailsModal(record, user)"
+                                    />
+                                  </a-tooltip>
+
+                                    <a-tooltip title="Delete">
+                                        <delete-outlined
+                                            :style="{
+                                                fontSize: 19,
+                                                color: '#e80101',
+                                            }"
+                                            @click="showDeleteConfirm(record)"
+                                        />
+                                    </a-tooltip>
+                                </div>
+                            </template>
+                    </template>
+                </a-table>
             </div>
-          </div>
         </div>
-      </div>
-      <!-- End Modal Reply -->
-
-      <!-- Modal Detail -->
-  <!-- Modal chi tiết -->
-  <div class="modal" id="detailModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Message Details</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeDetailModal">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <dl>
-                <dt>Full Name:</dt>
-                <dd>{{ detailInfo.fullName }}</dd>
-
-                <dt>Phone Number:</dt>
-                <dd>{{ detailInfo.phoneNumber }}</dd>
-
-                <dt>Email:</dt>
-                <dd>{{ detailInfo.email }}</dd>
-
-                <dt>Title:</dt>
-                <dd>{{ detailInfo.title }}</dd>
-
-                <dt>Content:</dt>
-                <dd>{{ detailInfo.content }}</dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!--End modal detail-->
-
-
-        <!-- Modal Confirm Delete -->
-<div class="modal" id="confirmDeleteModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Confirm Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Are you sure you want to delete?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" @click="deleteConfirmed" style="background-color: brown;">Yes, delete</button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- End Modal Confirm Delete -->
-
-    </div>
-    <!-- /.content-wrapper -->
-  </AuthenticatedLayout>
+    </AuthenticatedLayout>
 </template>
 
-<style scoped>
-
-.table th,
-.table td {
-  text-align: center;
+<style >
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  border-radius: 10px;
 }
 
-.table th {
-  background-color: #f8f9fa;
+.custom-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 8px;
 }
 
-.btn-group {
-  margin-right: 5px;
+.label-column {
+  font-weight: bold;
+  color: #333;
 }
 
-/* CSS cho nút "close" và "send" */
-#replyModal .btn-primary{
-  background-color: #007bff; /* Màu nền */
-  border-color: #007bff; /* Màu viền */
-  color: #fff; /* Màu chữ */
-}
-#replyModal .btn-secondary {
-  background-color: #cbcbcb; /* Màu nền */
-  border-color: #cbcbcb; /* Màu viền */
-  color: #fff; /* Màu chữ */
+.data-column {
+  color: #666;
 }
 
-
-/* CSS cho khung bo tròn */
-#replyModal .form-group input[type="text"],
-#replyModal .form-group input[type="text"]:focus,
-#replyModal .form-group textarea,
-#replyModal .form-group textarea:focus {
-  border-radius: 10px; /* Độ bo tròn */
-  padding: 10px; /* Khoảng cách bên trong ô nhập liệu */
-  border: 1px solid #ced4da; /* Viền */
-}
-
-#replyModal .modal-header {
-  background-color: #198754; /* Màu chữ */
-}
-
-/* CSS cho modal chi tiết */
-#detailModal .modal-content {
-  /* Tùy chỉnh kích thước, màu nền, hoặc bất kỳ thuộc tính CSS nào khác cho nội dung của modal */
-  width: 80%; /* Đặt chiều rộng của modal */
-  background-color: #f8f9fa; /* Màu nền của modal */
-}
-
-#detailModal .modal-header {
-  /* Tùy chỉnh header của modal */
-  background-color: #007bff; /* Màu nền header */
-  color: #fff; /* Màu chữ của header */
-}
-
-#detailModal .modal-title {
-  /* Tùy chỉnh tiêu đề của modal */
-  font-size: 1.5rem; /* Đặt kích thước chữ cho tiêu đề */
-
-}
-
-#detailModal .modal-body {
-  /* Tùy chỉnh phần thân của modal */
-  padding: 20px; /* Thêm padding cho phần thân */
-}
-
-#detailModal .btn-primary {
-  /* Tùy chỉnh nút "Close" trong modal */
-  background-color: #007bff; /* Màu nền nút */
-  border-color: #007bff; /* Màu viền nút */
-  color: #fff; /* Màu chữ của nút */
+.label-column-reply{
+  font-weight: bold;
+  color: #333;
+  padding: 10px;
 }
 </style>
