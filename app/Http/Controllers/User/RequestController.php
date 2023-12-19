@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use App\Models\RequestMail;
 use App\Http\Requests\StoreRequestRequest;
 use App\Models\User;
+use App\Models\Apartment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -34,6 +36,49 @@ class RequestController extends Controller
      */
     public function indexRecv()
     {
+        $user = User::query()->find(Auth::id());
+        $apartments = Apartment::all();
+        foreach ($apartments as $apartment) {
+            if ($apartment->owner_email == $user->email) {
+                $requests = DB::table("requests")
+                    ->join("request_user", "requests.id", "=", "request_user.request_id")
+                    ->join("users", "request_user.user_id", "=", "users.id")
+                    ->where("requests.apartment_id", "=", $apartment->id)
+                    ->where("request_user.is_owner", "=", 0)
+                    ->select("requests.*", "users.*")
+                    ->get();
+                return Inertia::render('User/Requests/ReceivedRequests', [
+                    'user' => $user,
+                    'apartments' => $apartments,
+                    'requests' => $requests
+                ]);
+            }
+        }
+
+        $apartment_id = DB::table('rooms')
+            ->join('apartments', 'rooms.apartment_id', '=', 'apartments.id')
+            ->join('room_user', 'rooms.id', '=', 'room_user.room_id')
+            ->where('room_user.user_id', '=', $user->id)
+            ->select('rooms.apartment_id')
+            ->get();
+
+        foreach ($apartments as $apartment) {
+            if ($apartment->id == $apartment_id) {
+                $requests = DB::table("requests")
+                    ->join("request_user", "requests.id", "=", "request_user.request_id")
+                    ->join("users", "request_user.user_id", "=", "users.id")
+                    ->where("requests.apartment_id", "=", $apartment->id)
+                    ->where("request_user.is_owner", "=", 1)
+                    ->select("requests.*", "users.*")
+                    ->get();
+                return Inertia::render('User/Requests/ReceivedRequests', [
+                    'user' => $user,
+                    'apartments' => $apartments,
+                    'requests' => $requests
+                ]);
+            }
+        }
+
         return Inertia::render('User/Requests/ReceivedRequests');
     }
 
