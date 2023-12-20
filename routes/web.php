@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\ApartmentController;
+use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\Owner\FacilityController;
 use App\Http\Controllers\Owner\InvoiceController;
 use App\Http\Controllers\Owner\RoomController;
 use App\Http\Controllers\Owner\TenantAccountController;
 use App\Http\Controllers\Owner\HistoryController;
+use App\Http\Controllers\Owner\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\RequestController;
@@ -33,10 +35,9 @@ Route::get('/', function () {
     ]);
 });
 
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::prefix('/apartments')->group(function () {
-        Route::get('/create', [ApartmentController::class, 'create'])->name('apartments.create');
-    });
+Route::middleware(['auth', 'admin', 'role'])->group(function () {
+    Route::get('apartments/index', [ApartmentController::class, 'index'])->name('apartments.index');
+    Route::resource('registrations', RegistrationController::class)->only(['index', 'show', 'update', 'destroy']);
 });
 
 Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner', 'role'])->group(function () {
@@ -51,19 +52,14 @@ Route::middleware(['auth', 'verified','select.apartment', 'apartment.owner', 'ro
     Route::resource('/facilities', FacilityController::class);
     Route::resource('/invoices', InvoiceController::class)->except(['index', 'show']);
     Route::resource('/history', HistoryController::class);
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware(['auth', 'verified', 'select.apartment', 'role'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 //    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('/dashboard', function () {
-        $apartment = \App\Models\Apartment::query()
-            ->where('id', '=', \Illuminate\Support\Facades\Session::get('selectedApartmentID'))
-            ->first();
-        return Inertia::render('Dashboard', [ 'apartment' => $apartment]);
-    })->name('dashboard');
 
     Route::prefix('/requests')->group(function () {
         Route::get('/sent', [RequestController::class, 'indexSent'])->name('requests.sent');

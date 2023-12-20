@@ -30,7 +30,7 @@ const showingNavigationDropdown = ref(false);
               </div>
 
               <!-- Navigation Links -->
-              <div v-if="usePage().props.apartment !== null" class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+              <div v-if="usePage().props.role !== 'ADMIN'" class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 <NavLink :href="route('selectApartment.show')" :active="route().current('selectApartment.show')">
                   Select Apartment
                 </NavLink>

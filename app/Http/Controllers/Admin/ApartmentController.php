@@ -16,10 +16,19 @@ class ApartmentController extends Controller
     /**
      * Display the arpartment list account.
      */
-    public function create(Request $request): Response
+    public function index(): Response
     {
         $apartments = Apartment::all();
-        return Inertia::render('Admin/ApartmentList', ['apartments' => $apartments, ]);
+        $i = 0;
+        foreach ($apartments as $apartment) {
+            $owner = User::query()->where('email', '=', $apartment->owner_email)->first();
+            $apartments[$i]['owner'] = $owner;
+            $apartments[$i]['apartment_type'] = $apartment->load('apartmentType');
+            $i++;
+        }
+        return Inertia::render('Admin/Apartments/Index', [
+            'apartments' => $apartments,
+        ]);
     }
 
     public function show(Apartment $apartment)

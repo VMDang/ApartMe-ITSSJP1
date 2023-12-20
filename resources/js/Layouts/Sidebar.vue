@@ -18,16 +18,28 @@
                             >Dashboard</a
                         >
                     </a-menu-item>
-                    <a-menu-item key="apartments">
+                    <a-menu-item v-if="currentRole !== 'ADMIN'" key="apartments">
                         <info-circle-outlined />
                         <a :href="route('apartments.show')" class="menu-link"
                             >Apartment Detail</a
                         >
                     </a-menu-item>
-                    <a-menu-item key="rooms">
+                    <a-menu-item v-if="currentRole !== 'ADMIN'" key="rooms">
                         <home-outlined />
                         <a :href="route('rooms.index')" class="menu-link"
                             >Rooms</a
+                        >
+                    </a-menu-item>
+                    <a-menu-item v-if="currentRole === 'ADMIN'" key="registrations">
+                        <medicine-box-outlined />
+                        <a :href="route('registrations.index')" class="menu-link"
+                        >Registrations </a
+                        >
+                    </a-menu-item>
+                    <a-menu-item v-if="currentRole === 'ADMIN'" key="apartments">
+                        <home-outlined />
+                        <a :href="route('apartments.index')" class="menu-link"
+                        >Apartments </a
                         >
                     </a-menu-item>
                     <a-menu-item v-if="currentRole === 'OWNER'" key="tenant-accounts">
@@ -44,29 +56,29 @@
                             >Facilities</a
                         >
                     </a-menu-item>
-                    <a-menu-item key="invoices">
+                    <a-menu-item v-if="currentRole !== 'ADMIN'" key="invoices">
                         <dollar-circle-outlined />
                         <a :href="route('invoices.index')" class="menu-link"
                             >Invoices</a
                         >
                     </a-menu-item>
-                    <a-menu-item key="payments">
+                    <a-menu-item v-if="currentRole !== 'ADMIN'" key="payments">
                         <file-done-outlined/>
                         <a :href="route('payments.index')" class="menu-link"
                         >Payments</a
                         >
                     </a-menu-item>
-                    <a-sub-menu key="sub2">
+                    <a-sub-menu v-if="currentRole !== 'ADMIN'" key="sub2">
                         <template #title>
                             <message-outlined />
                             <span>Requests</span>
                         </template>
-                        <a-menu-item key="requests">
+                        <a-menu-item key="requests.sent">
                             <a :href="route('requests.sent')" class="menu-link"
                                 >Sent</a
                             >
                         </a-menu-item>
-                        <a-menu-item key="6">
+                        <a-menu-item key="requests.recv">
                             <a :href="route('requests.recv')" class="menu-link"
                                 >Received</a
                             >
@@ -98,6 +110,7 @@ import {
     InfoCircleOutlined,
     PieChartOutlined,
     FileDoneOutlined,
+    MedicineBoxOutlined,
 } from "@ant-design/icons-vue";
 import {usePage} from "@inertiajs/vue3";
 
@@ -114,6 +127,7 @@ export default {
         InfoCircleOutlined,
         PieChartOutlined,
         FileDoneOutlined,
+        MedicineBoxOutlined,
     },
     setup() {
         const collapsed = ref(false);
@@ -132,10 +146,14 @@ export default {
                 return ['invoices']
             } else if (currentRoute.includes('payments')) {
                 return ['payments']
-            } else if (currentRoute.includes('requests')) {
-                return ['requests']
-            } else if (currentRoute.includes('history')) {
+            } else if (currentRoute.includes('requests.sent')) {
+                return ['requests.sent']
+            } else if (currentRoute.includes('requests.recv')) {
+                return ['requests.recv']
+            }else if (currentRoute.includes('history')) {
                 return ['history']
+            } else if (currentRoute.includes('registrations')) {
+                return ['registrations']
             }
 
         }

@@ -43,7 +43,7 @@ const invoice = ref({
                             >
                                 <check-circle-filled class="text-green-700" style="font-size: x-large"  />
                             </a-tooltip>
-                            <a-tooltip title
+                            <a-tooltip title="Not Done"
                                     v-if="invoice.status === 'Not Done' && invoiceReceived.payment === null"
                                     style="color: #e80101"
                             >

@@ -207,7 +207,7 @@ const openNotification = (type, message, description) => {
             </div>
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="m-4 ml-0 float-left">
-                <a-button
+                <a-button v-if="usePage().props.role === 'OWNER'"
                     type="primary"
                     @click="Inertia.get(route('invoices.create'))"
                 >
