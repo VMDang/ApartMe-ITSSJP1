@@ -73,12 +73,12 @@
                             <message-outlined />
                             <span>Requests</span>
                         </template>
-                        <a-menu-item key="requests">
+                        <a-menu-item key="requests.sent">
                             <a :href="route('requests.sent')" class="menu-link"
                                 >Sent</a
                             >
                         </a-menu-item>
-                        <a-menu-item key="requests">
+                        <a-menu-item key="requests.recv">
                             <a :href="route('requests.recv')" class="menu-link"
                                 >Received</a
                             >
@@ -146,9 +146,11 @@ export default {
                 return ['invoices']
             } else if (currentRoute.includes('payments')) {
                 return ['payments']
-            } else if (currentRoute.includes('requests')) {
-                return ['requests']
-            } else if (currentRoute.includes('history')) {
+            } else if (currentRoute.includes('requests.sent')) {
+                return ['requests.sent']
+            } else if (currentRoute.includes('requests.recv')) {
+                return ['requests.recv']
+            }else if (currentRoute.includes('history')) {
                 return ['history']
             } else if (currentRoute.includes('registrations')) {
                 return ['registrations']

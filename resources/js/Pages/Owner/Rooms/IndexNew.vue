@@ -23,58 +23,6 @@ const state = reactive({
 });
 const searchInput = ref();
 
-const columns = [
-    {
-        name: "Name",
-        dataIndex: "name",
-        key: "name",
-        sorter: (a, b) => a.name.length - b.name.length,
-        sortDirections: ["descend", "ascend"],
-        customFilterDropdown: true,
-        onFilter: (value, record) =>
-            record.name.toString().toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-        title: "Floor",
-        dataIndex: "floor",
-        key: "floor",
-        sorter: (a, b) => a.floor.length - b.floor.length,
-        sortDirections: ["descend", "ascend"],
-    },
-    {
-        title: "Area",
-        dataIndex: "area",
-        key: "area",
-        sorter: (a, b) => a.area - b.area,
-    },
-    {
-        title: "Tenants",
-        key: "tenants",
-        dataIndex: "tenants",
-    },
-    {
-        title: "Status",
-        key: "status",
-        dataIndex: "status",
-        filters: [
-            {
-                text: "Active",
-                value: "Active",
-            },
-            {
-                text: "Lock",
-                value: "Lock",
-            },
-        ],
-        onFilter: (value, record) => record.status.indexOf(value) === 0,
-    },
-    {
-        title: "Action",
-        key: "action",
-        align: "center",
-    },
-];
-
 const newRooms = usePage().props.rooms.map((room) => {
     const textStatus =
         room.status === 1 ? "Active" : room.status === 0 ? "Lock" : "";

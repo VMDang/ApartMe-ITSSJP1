@@ -143,7 +143,7 @@ const showDetailsModal = (record, user) => {
 
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-                <div class="pb-4 float-right">
+                <div class="mt-4 pb-4 float-right">
                     <a-space direction="vertical" clearIcon>
                         <a-input-search
                             v-model:value="value"

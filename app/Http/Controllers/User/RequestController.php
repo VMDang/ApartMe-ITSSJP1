@@ -56,13 +56,7 @@ class RequestController extends Controller
             }
         }
 
-        $apartment_id = DB::table('rooms')
-            ->join('apartments', 'rooms.apartment_id', '=', 'apartments.id')
-            ->join('room_user', 'rooms.id', '=', 'room_user.room_id')
-            ->where('room_user.user_id', '=', $user->id)
-            ->select('rooms.apartment_id')
-            ->get();
-
+        $apartment_id = Session::get('selectedApartmentID');
         foreach ($apartments as $apartment) {
             if ($apartment->id == $apartment_id) {
                 $requests = DB::table("requests")

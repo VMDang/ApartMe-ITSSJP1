@@ -6,7 +6,6 @@ import {Inertia} from "@inertiajs/inertia";
 import InputError from "@/Components/InputError.vue";
 
 const errors = usePage().props.errors;
-console.log(errors);
 
 const formRef = ref();
 const labelCol = {
@@ -31,7 +30,6 @@ const onSubmit = () => {
     formRef.value
         .validate()
         .then(() => {
-            console.log(toRaw(formState))
             Inertia.post(route('tenant-accounts.store'), toRaw(formState))
         })
         .catch(error => {

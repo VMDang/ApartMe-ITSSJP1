@@ -10,7 +10,7 @@
                         border-radius: 10px;
                         background-color: #ffffff;
                     "
-                    title="Basic Apartment Information"
+                    title="Apartment Information"
                 />
             </div>
 
