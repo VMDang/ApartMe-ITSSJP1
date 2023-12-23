@@ -23,10 +23,9 @@ class StoreRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|integer|min:1',
-            'title' => 'required|string',
+            'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'is_owner' => 'required|integer'
+            'receivers.*' => ['required', 'exists:users,id'],
         ];
     }
 }
