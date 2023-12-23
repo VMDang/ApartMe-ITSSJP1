@@ -1,6 +1,6 @@
 <script setup>
 import {Head, usePage} from "@inertiajs/vue3";
-import {createVNode, reactive, ref, defineProps} from "vue";
+import {createVNode, reactive, ref} from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Input, Modal } from "ant-design-vue";
 import { Inertia } from "@inertiajs/inertia";
@@ -12,19 +12,27 @@ import {
     EyeOutlined,
     ExclamationCircleOutlined,
     SearchOutlined,
-    FormOutlined,
+    FormOutlined, CloseCircleFilled, CheckCircleFilled, SyncOutlined,
 } from "@ant-design/icons-vue";
+import useState from "ant-design-vue/es/_util/hooks/useState.js";
 
-const props = defineProps({
-    requests: Array,
-    user: Object,
-})
+const [requests, setRequests] = useState(null);
+const [detail, setDetail] = useState(null);
 
 const state = reactive({
     searchText: '',
     searchedColumn: '',
 });
 const searchInput = ref();
+
+const newRequests = usePage().props.requests.map((request) => {
+    return {
+        ...request,
+        created_at: new Date(request.created_at).toLocaleDateString('en-GB')
+    }
+})
+
+setRequests(newRequests);
 
 const columns = [
     {
@@ -35,8 +43,13 @@ const columns = [
         onFilter: (value, record) => record.title.toString().toLowerCase().includes(value.toLowerCase()),
     },
     {
-        title: "Content",
-        dataIndex: "content",
+        title: "Receivers",
+        dataIndex: "receivers",
+        key: "receivers",
+    },
+    {
+        title: "Date created",
+        dataIndex: "created_at",
         key: "content",
     },
     {
@@ -47,6 +60,23 @@ const columns = [
 ];
 
 const value = ref("");
+
+const onSearch = (searchValue) => {
+    if (searchValue === "") {
+        setRequests(newRequests);
+    } else {
+        searchValue = searchValue.toLowerCase();
+        const requestsSearch = newRequests.filter(
+            (request) =>
+                request.title.toString().toLowerCase().includes(searchValue) ||
+                request.created_at.toString().toLowerCase().includes(searchValue) ||
+                request.users.some((receiver) =>
+                    receiver.name.toLowerCase().includes(searchValue)
+                )
+        );
+        setRequests(requestsSearch);
+    }
+};
 
 const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -62,12 +92,12 @@ const handleReset = clearFilters => {
 
 const showDeleteConfirm = (record) => {
     Modal.confirm({
-        title: "Are you sure you want to delete?",
+        title: "Are you sure you want to delete this request?",
         icon: createVNode(ExclamationCircleOutlined),
         content: createVNode(
             "div",
             { style: "color:red;" },
-            `Number: ${record.id}`
+            `Title: ${record.title}`
         ),
         okText: "Yes",
         okType: "danger",
@@ -77,112 +107,15 @@ const showDeleteConfirm = (record) => {
             console.log("Cancelled");
         },
         onOk() {
-            const id = record.id;
-            const url = route("requests.destroy", { id: id });
-            Inertia.delete(url);
-            window.location.reload();
-            console.log("OK");
+            Inertia.delete(route('requests.destroy', { request: record.id }))
         },
     });
 };
-const showDetailsModal = (record, user) => {
-  console.log("showDetailsModal called with record:", record, user);
 
-  Modal.info({
-    title: "Detail requests",
-    icon: createVNode(EyeOutlined),
-    content: createVNode(
-      "div",
-      null,
-      [
-        createVNode("table", { class: "custom-table" }, [
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column" }, "Full Name"),
-            createVNode("td", { class: "data-column" }, user.name),
-          ]),
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column" }, "Phone Number"),
-            createVNode("td", { class: "data-column" }, user.phone),
-          ]),
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column" }, "Email"),
-            createVNode("td", { class: "data-column" }, user.email),
-          ]),
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column" }, "Title"),
-            createVNode("td", { class: "data-column" }, record.title),
-          ]),
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column" }, "Content"),
-            createVNode("td", { class: "data-column" }, record.content),
-          ]),
-        ])
-      ]
-    ),
-    okText: "Close",
-    onOk() {},
-  });
-};
-
-const showCreateModal = (user) => {
-
-  const formData = reactive({
-    apartment_id: "", // cause role have not existed yet -> input
-    user_id: user.id,
-    is_owner: "1", // cause role have not existed yet -> auto 1
-    title: "",
-    content: "",
-  });
-
-  Modal.info({
-    title: "Create requests",
-    icon: createVNode(FormOutlined),
-    content: createVNode(
-      "div",
-      null,
-      [
-        createVNode("table", { class: "custom-table-reply" }, [
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column-reply" }, "Request to Apartment"),
-            createVNode("td", { class: "data-column-reply" }, [
-              createVNode(Input, {
-                onChange: (e) => (formData.apartment_id = e.target.value),
-              }),
-            ]),
-          ]),
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column-reply" }, "Title"),
-            createVNode("td", {rules : "[{ required: true, message: 'Please input Title!' }]", class: "data-column-reply" }, [
-              createVNode(Input, {
-                onChange: (e) => (formData.title = e.target.value),
-              }),
-            ]),
-          ]),
-          createVNode("tr", null, [
-            createVNode("td", { class: "label-column-reply" }, "Content"),
-            createVNode("td", { class: "data-column-reply" }, [
-              createVNode(Input.TextArea, {
-                onChange: (e) => (formData.content = e.target.value),
-              }),
-            ]),
-          ]),
-        ]),
-      ]
-    ),
-    okText: "Send",
-    onOk() {
-        axios.post(route("requests.store"), {
-            apartment_id: formData.apartment_id,
-            title: formData.title,
-            content: formData.content,
-            user_id: formData.user_id,
-            is_owner: formData.is_owner,
-                onFinish: () => {
-                    formData.reset('apaartment_id', 'title', 'content');
-                }
-            });
-    },
-  });
+const open = ref(false);
+const openDetailModal = (record) => {
+    setDetail(record)
+    open.value = true;
 };
 
 </script>
@@ -195,7 +128,7 @@ const showCreateModal = (user) => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <a-page-header
                     style="border: 1px solid rgb(221,222,225); border-radius: 10px; background-color: white;"
-                    title="List of sent requests"
+                    title="List requests sent"
 
                 />
             </div>
@@ -204,7 +137,7 @@ const showCreateModal = (user) => {
                 <div class="m-4 ml-0 float-left">
                     <a-button
                         type="primary"
-                        @click="showCreateModal(user)"
+                        @click="Inertia.get(route('requests.create'))"
                     >
                         <template #icon>
                             <plus-circle-outlined />
@@ -219,7 +152,7 @@ const showCreateModal = (user) => {
                             placeholder="Input search text"
                             enter-button="Search"
                             style="width: 300px"
-                            @search="handleSearch"
+                            @search="onSearch"
                             allow-clear
                         >
                         </a-input-search>
@@ -228,7 +161,7 @@ const showCreateModal = (user) => {
                 <a-table :columns="columns" :data-source="requests">
                     <template #headerCell="{ column }">
                         <template v-if="column.key === 'title'">
-                            <span style="color: #1890ff"> Title </span>
+                            <span style="color: #0a43d3"> Title </span>
                         </template>
                     </template>
 
@@ -263,59 +196,67 @@ const showCreateModal = (user) => {
                     </template>
 
                     <template #bodyCell="{ column, record }">
+                        <template v-if="column.key === 'title'">
+                            <span class="text-blue-600 ">
+                                {{record.title}}
+                            </span>
+                        </template>
+                        <template v-if="column.key === 'receivers'">
+                            <span>
+                                <a-tag
+                                    v-for="receiver in record.users"
+                                    :color="'geekblue'"
+                                >
+                                    {{ receiver.name }}
+                                </a-tag>
+                            </span>
+                        </template>
                         <template v-if="column.key === 'action'">
-                                <div class="flex gap-3 justify-center">
-                                  <a-tooltip title="Detail">
+                            <div class="flex gap-3 justify-center">
+                                <a-tooltip title="Detail">
                                     <eye-outlined
-                                      :style="{ fontSize: 19 }"
-                                      @click="showDetailsModal(record, user)"
+                                        :style="{ fontSize: 19 }"
+                                        @click="openDetailModal(record)"
                                     />
-                                  </a-tooltip>
+                                </a-tooltip>
 
-                                    <a-tooltip v-if="usePage().props.role === 'OWNER'" title="Delete">
-                                        <delete-outlined
-                                            :style="{
+                                <a-tooltip title="Delete">
+                                    <delete-outlined
+                                        :style="{
                                                 fontSize: 19,
                                                 color: '#e80101',
                                             }"
-                                            @click="showDeleteConfirm(record)"
-                                        />
-                                    </a-tooltip>
-                                </div>
-                            </template>
+                                        @click="showDeleteConfirm(record)"
+                                    />
+                                </a-tooltip>
+                            </div>
+                        </template>
                     </template>
                 </a-table>
+                <a-modal v-model:open="open" title="Detail request mail">
+                    <a-descriptions title="" bordered>
+                        <a-descriptions-item label="Title" :span="3"><strong>{{detail.title}}</strong></a-descriptions-item>
+
+                        <a-descriptions-item label="Receivers" :span="3">
+                            <span>
+                                <a-tag
+                                    v-for="r in detail.users"
+                                    :color="'geekblue'"
+                                >
+                                    {{ r.name }} ({{ r.email }})
+                                </a-tag>
+                            </span>
+                        </a-descriptions-item>
+                        <a-descriptions-item label="Date created" :span="3">
+                            {{ detail.created_at }}
+                        </a-descriptions-item>
+
+                        <a-descriptions-item label="Content">
+                            {{ detail.content }}
+                        </a-descriptions-item>
+                    </a-descriptions>
+                </a-modal>
             </div>
         </div>
     </AuthenticatedLayout>
 </template>
-
-<style >
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  border-radius: 10px;
-}
-
-.custom-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  border-radius: 8px;
-}
-
-.label-column {
-  font-weight: bold;
-  color: #333;
-}
-
-.data-column {
-  color: #666;
-}
-
-.label-column-reply{
-  font-weight: bold;
-  color: #333;
-  padding: 10px;
-}
-</style>

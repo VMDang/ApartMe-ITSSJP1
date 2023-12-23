@@ -64,8 +64,9 @@ Route::middleware(['auth', 'verified', 'select.apartment', 'role'])->group(funct
     Route::prefix('/requests')->group(function () {
         Route::get('/sent', [RequestController::class, 'indexSent'])->name('requests.sent');
         Route::get('/recv', [RequestController::class, 'indexRecv'])->name('requests.recv');
+        Route::get('/create', [RequestController::class, 'create'])->name('requests.create');
         Route::post('/submit-form', [RequestController::class, 'store'])->name('requests.store');
-        Route::delete('/delete/{id}', [RequestController::class, 'destroy'])->name('requests.destroy');
+        Route::delete('/delete/{request}', [RequestController::class, 'destroy'])->name('requests.destroy');
     });
 
     Route::get('invoices/', [InvoiceController::class, 'index'])->name('invoices.index');

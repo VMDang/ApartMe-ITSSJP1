@@ -18,21 +18,6 @@ import {Modal} from "ant-design-vue";
 const [rooms, setRooms] = useState(null);
 const [invoices, setInvoices] = useState(null);
 
-const listData = ref([
-    {
-        title: "Lease Signed",
-        description: "Lease agreement signed by John Doe",
-        date: "2022-01-15",
-        color: "green",
-    },
-    {
-        title: "Move-in",
-        description: "Tenant moved into the apartment",
-        date: "2022-01-20",
-        color: "blue",
-    },
-]);
-
 const newRooms = usePage().props.rooms.map((room) => {
     const textStatus =
         room.status === 1 ? "Active" : room.status === 0 ? "Lock" : "";
@@ -98,7 +83,6 @@ const columnsInvoice = [
 ];
 
 const [tenants, setTenants] = useState(null);
-
 
 const newTenants = usePage().props.tenants.map((tenant) => {
     const formattedDate = format(new Date(tenant.created_at), 'yyyy MMMM do')
@@ -194,7 +178,6 @@ const showDetailsModal = (record) => {
         onOk() {},
     });
 };
-
 
 </script>
 

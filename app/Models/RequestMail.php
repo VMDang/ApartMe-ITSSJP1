@@ -22,7 +22,7 @@ class RequestMail extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'reuquest_user', 'request_id', 'user_id')
+        return $this->belongsToMany(User::class, 'request_user', 'request_id', 'user_id')
             ->withPivot(['id', 'user_id', 'request_id', 'is_owner'])->withTimestamps();
     }
 }

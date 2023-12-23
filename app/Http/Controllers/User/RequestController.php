@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Room;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use App\Models\RequestMail;
@@ -22,14 +24,18 @@ class RequestController extends Controller
      */
     public function indexSent()
     {
-        $user = User::query()->find(Auth::id());
-        $requests = DB::table("request_user")
-            ->join("requests", "request_user.request_id", "=", "requests.id")
-            ->where("request_user.user_id", "=", $user->id)
-            ->select("requests.*")
-            ->distinct()
-            ->get();
-        return Inertia::render('User/Requests/SentRequests', ['user' => $user, 'requests' => $requests]);
+        $requests = RequestMail::query()
+            ->where('apartment_id', '=', Session::get('selectedApartmentID'))
+            ->whereHas('users', function ($query) {
+                $query->where('user_id', '=', Auth::id());
+                $query->where('is_owner', '=', true);
+            })->with('users', function ($query) {
+                $query->where('user_id', '!=', Auth::id());
+            })->orderBy('created_at', 'desc')->get();
+
+        return Inertia::render('User/Requests/SentRequests', [
+            'requests' => $requests
+        ]);
     }
 
     /**
@@ -37,66 +43,67 @@ class RequestController extends Controller
      */
     public function indexRecv()
     {
-        $user = User::query()->find(Auth::id());
-        $apartments = Apartment::all();
-        foreach ($apartments as $apartment) {
-            if ($apartment->owner_email == $user->email) {
-                $requests = DB::table("requests")
-                    ->join("request_user", "requests.id", "=", "request_user.request_id")
-                    ->join("users", "request_user.user_id", "=", "users.id")
-                    ->where("requests.apartment_id", "=", $apartment->id)
-                    ->where("request_user.is_owner", "=", 0)
-                    ->select("requests.*", "users.*")
-                    ->get();
-                return Inertia::render('User/Requests/ReceivedRequests', [
-                    'user' => $user,
-                    'apartments' => $apartments,
-                    'requests' => $requests
-                ]);
+        $requests = RequestMail::query()
+            ->where('apartment_id', '=', Session::get('selectedApartmentID'))
+            ->whereHas('users', function ($query) {
+                $query->where('user_id', '=', Auth::id());
+                $query->where('is_owner', '=', false);
+            })->with('users', function ($query) {
+                $query->where('is_owner', '=', true);
+            })->orderBy('created_at', 'desc')->get();
+
+        return Inertia::render('User/Requests/ReceivedRequests', [
+            'requests' => $requests,
+        ]);
+    }
+
+    public function create(): Response
+    {
+        $rooms = Room::query()->select('id')
+            ->where('apartment_id', '=', Session::get('selectedApartmentID'))
+            ->get();
+
+        $apartmentSelected = Apartment::query()->find(Session::get('selectedApartmentID'));
+        $owner = User::query()->where('email', '=', $apartmentSelected->owner_email)
+            ->get()->toArray();
+
+        $tenants = User::query()->whereHas('rooms', function ($query) use ($rooms) {
+            $query->whereIn('room_id', $rooms->pluck('id'));
+        })->get()->toArray();
+        $usersApartment = array_merge($owner, $tenants);
+
+        foreach ($usersApartment as $u) {
+            if (!($u['id'] == Auth::id())) {
+                $users[] = $u;
             }
         }
-
-        $apartment_id = Session::get('selectedApartmentID');
-        foreach ($apartments as $apartment) {
-            if ($apartment->id == $apartment_id) {
-                $requests = DB::table("requests")
-                    ->join("request_user", "requests.id", "=", "request_user.request_id")
-                    ->join("users", "request_user.user_id", "=", "users.id")
-                    ->where("requests.apartment_id", "=", $apartment->id)
-                    ->where("request_user.is_owner", "=", 1)
-                    ->select("requests.*", "users.*")
-                    ->get();
-                return Inertia::render('User/Requests/ReceivedRequests', [
-                    'user' => $user,
-                    'apartments' => $apartments,
-                    'requests' => $requests
-                ]);
-            }
-        }
-
-        return Inertia::render('User/Requests/ReceivedRequests');
+        return Inertia::render('User/Requests/Create', [
+            'users' => $users,
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequestRequest $request)
+    public function store(StoreRequestRequest $request): RedirectResponse
     {
         $request->validated();
-        $requests = new RequestMail([
-            'title' => $request->get('title'),
-            'apartment_id' => $request->get('apartment_id'),
-            'content' => $request->get('content'),
-            'created_at' => now(),
-        ]);
 
-        $requests->save();
+        DB::transaction(
+            function () use ($request) {
+                $newRequest = new RequestMail([
+                    'title' => $request->get('title'),
+                    'apartment_id' => Session::get('selectedApartmentID'),
+                    'content' => $request->get('content'),
+                ]);
 
-        DB::table("request_user")->insert([
-            'user_id' => $request->get('user_id'),
-            'request_id' => $requests->id,
-            'is_owner' => $request->get('is_owner'),
-        ]);
+                $newRequest->save();
+
+                $newRequest->users()->attach(Auth::id(), ['is_owner' => true]);
+                $newRequest->users()->attach($request->get('receivers'), ['is_owner' => false]);
+            },
+            config('database.connections.mysql.attempts_transaction')
+        );
 
         return Redirect::route('requests.sent')->with('success', 'Account added successfully');
     }
@@ -104,12 +111,19 @@ class RequestController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
-        $requests_delete = RequestMail::find($id);
-        $requests_delete->delete();
-        $requests_user = DB::table('request_user')->where('request_id', '=', $id);
-        $requests_user->delete();
+        $requests_delete = RequestMail::query()->find($id);
+        if ($requests_delete->exists()) {
+            DB::transaction(
+                function () use ($requests_delete) {
+                    $requests_delete->users()->detach();
+                    $requests_delete->delete();
+                },
+                config('database.connections.mysql.attempts_transaction')
+            );
+        }
+
         return Redirect::back()->with('success', 'Account deleted successfully');
     }
 }
