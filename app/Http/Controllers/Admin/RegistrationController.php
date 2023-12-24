@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Apartment;
 use App\Models\Registration;
+use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -79,27 +80,39 @@ class RegistrationController extends Controller
         $registration->save();
 
         if ($validated['approve_status'] == 'Accept') {
-            Apartment::query()->create([
-                'address' => $registration->address,
-                'owner_email' => $registration->owner_email,
-                'number_floors' => $registration->number_floors,
-                'number_rooms' => $registration->number_rooms,
-                'area' => $registration->area,
-                'apartment_type_id' => $registration->apartment_type_id,
-                'created_at' => Carbon::now(),
-            ]);
+            DB::transaction(
+                function () use ($registration) {
+                    Apartment::query()->create([
+                        'address' => $registration->address,
+                        'owner_email' => $registration->owner_email,
+                        'number_floors' => $registration->number_floors,
+                        'number_rooms' => $registration->number_rooms,
+                        'area' => $registration->area,
+                        'apartment_type_id' => $registration->apartment_type_id,
+                        'created_at' => Carbon::now(),
+                    ]);
 
-            User::query()->updateOrInsert(
-                [
-                    'email' => $registration->owner_email,
-                ],
-                [
-                    'name' => $registration->name,
-                    'phone' => $registration->phone,
-                    'password' => $registration->password,
-                    'status' => array_search('Active', config('app.user_status')),
-                    'created_at' => Carbon::now(),
-                ]
+                    User::query()->updateOrInsert(
+                        [
+                            'email' => $registration->owner_email,
+                        ],
+                        [
+                            'name' => $registration->name,
+                            'phone' => $registration->phone,
+                            'password' => $registration->password,
+                            'status' => array_search('Active', config('app.user_status')),
+                            'created_at' => Carbon::now(),
+                        ]
+                    );
+
+                    $user = User::query()->where('email', '=', $registration->owner_email)->first();
+
+                    DB::table('room_user')->insert([
+                        'user_id' => $user->id,
+                        'role_id' => Role::query()->where('name', '=', 'OWNER')->first()->id,
+                    ]);
+                },
+                config('database.connections.mysql.attempts_transaction')
             );
         }
 

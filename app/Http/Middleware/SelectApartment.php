@@ -20,7 +20,7 @@ class SelectApartment
     public function handle(Request $request, Closure $next): Response
     {
         $role = User::query()->find(Auth::user()->getAuthIdentifier())->roles->first();
-        if ($role->name == "ADMIN") {
+        if (isset($role->name) && $role->name == "ADMIN") {
             return $next($request);
         }
 

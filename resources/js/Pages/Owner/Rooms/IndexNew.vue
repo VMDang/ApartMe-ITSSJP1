@@ -80,7 +80,7 @@ const handleReset = (clearFilters) => {
     state.searchText = "";
 };
 
-const title = `Apartment: ${rooms.value[0].apartment.address}`;
+const title = `Apartment: ${usePage().props.apartment.address}`;
 
 const showDeleteConfirm = (record) => {
     Modal.confirm({
