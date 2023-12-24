@@ -154,6 +154,8 @@ export default {
                 return ['history']
             } else if (currentRoute.includes('registrations')) {
                 return ['registrations']
+            } else if (currentRoute.includes('dashboard')) {
+                return ['dashboard']
             }
 
         }

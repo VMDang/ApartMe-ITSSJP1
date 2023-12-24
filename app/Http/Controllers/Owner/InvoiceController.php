@@ -21,7 +21,7 @@ class InvoiceController extends Controller
     {
         $currentRole = Auth::user()->currentRole();
         $roomsWithInvoices = Room::query()->where('apartment_id', '=', Session::get('selectedApartmentID'))
-            ->with(['invoices', 'users'])->get();
+            ->with(['invoices', 'users'])->orderBy('created_at', 'desc')->get();
 
         if ($currentRole == 'OWNER') {
             $rooms = $roomsWithInvoices;

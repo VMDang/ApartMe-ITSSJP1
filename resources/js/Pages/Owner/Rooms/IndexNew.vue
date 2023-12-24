@@ -215,7 +215,7 @@ const showDeleteConfirm = (record) => {
                                                 "
                                             />
                                         </a-tooltip>
-                                        <a-tooltip title="Edit">
+                                        <a-tooltip v-if="usePage().props.role == 'OWNER'" title="Edit">
                                             <edit-outlined
                                                 :style="{
                                                     fontSize: 19,
@@ -230,7 +230,7 @@ const showDeleteConfirm = (record) => {
                                                 "
                                             />
                                         </a-tooltip>
-                                        <a-tooltip title="Delete">
+                                        <a-tooltip v-if="usePage().props.role == 'OWNER'" title="Delete">
                                             <delete-outlined
                                                 :style="{
                                                     fontSize: 19,
