@@ -44,8 +44,6 @@ const columns = [
         title: "Name Facility",
         dataIndex: "name",
         key: "name",
-        sorter: (a, b) => a.name.length - b.name.length,
-        sortDirections: ["descend", "ascend"],
         customFilterDropdown: true,
         onFilter: (value, record) => record.name.toString().toLowerCase().includes(value.toLowerCase()),
     },
@@ -59,6 +57,8 @@ const columns = [
         title: "Room",
         dataIndex: "room_name",
         key: "room_name",
+        customFilterDropdown: true,
+        onFilter: (value, record) => record.room_name.toString().toLowerCase().includes(value.toLowerCase()),
     },
     {
         title: "Action",
