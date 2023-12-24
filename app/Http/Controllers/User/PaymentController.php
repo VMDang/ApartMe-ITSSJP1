@@ -39,6 +39,9 @@ class PaymentController extends Controller
                     }
                 }
             }
+            if (empty($paymentsOwner)) {
+                $paymentsOwner = [];
+            }
             return Inertia::render('User/Payments/Index', [
                 'payments' => $paymentsOwner,
             ]);
@@ -62,6 +65,9 @@ class PaymentController extends Controller
                         $i++;
                     }
                 }
+            }
+            if (empty($paymentsTenant)) {
+                $paymentsTenant = [];
             }
 
             return Inertia::render('User/Payments/Index', [

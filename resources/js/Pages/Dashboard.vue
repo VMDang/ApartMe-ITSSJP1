@@ -387,10 +387,10 @@ const showDetailsModal = (record) => {
                         </a-row>
                         <a-row class="ml-4">
                             <a-descriptions title="Tenants management"/>
-                            <a-table :columns="columnsTenant" :data-source="tenants">
+                            <a-table style="width: 430px" :columns="columnsTenant" :data-source="tenants">
                                 <template #headerCell="{ column }">
                                     <template v-if="column.key === 'name'">
-                                        <span style="color: #0a43d3"> Name </span>
+                                        <span style="color: #0a43d3">Tenant Name </span>
                                     </template>
                                 </template>
 

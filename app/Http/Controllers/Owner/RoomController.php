@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Room\StoreRoomRequest;
+use App\Models\Apartment;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -39,8 +40,11 @@ class RoomController extends Controller
             }
         }
 
+        $apartment = Apartment::query()->find(Session::get('selectedApartmentID'));
+
         return Inertia::render('Owner/Rooms/IndexNew', [
             'rooms' => $rooms,
+            'apartment' => $apartment,
         ]);
     }
 

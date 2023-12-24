@@ -306,10 +306,17 @@ const openNotification = (type, message, description) => {
 
                 <template #bodyCell="{ column, record }">
                     <template  v-if="column.key === 'name'">
-                        <span class="underline" @click="Inertia.get(route('invoices.show', {invoice: record.id}))">
+                        <span @click="Inertia.get(route('invoices.show', {invoice: record.id}))">
                             <strong class="text-blue-700 font-bold">
                                 {{ record.name }}
                             </strong>
+                        </span>
+                    </template>
+                    <template v-if="column.key === 'room_name'">
+                        <span>
+                            <a-tag :color="'geekblue'">
+                                {{ record.room_name }}
+                            </a-tag>
                         </span>
                     </template>
                     <template v-if="column.key === 'status_new'">

@@ -274,7 +274,7 @@ const onSearch = (searchValue) => {
 
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'name'">
-                            <span class="underline ">
+                            <span>
                                 <strong class="text-blue-600 font-bold"> {{record.name}} </strong>
                             </span>
                         </template>
